@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <!-- Bulletproof viewport settings to strictly lock mobile scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Aurafi Studio | AI Branding & Automation Agency</title>
+    
+    <!-- Favicon & Mobile Touch Icons (Aurafi Logo) -->
+    <link rel="icon" href="9.png" type="image/png">
+    <link rel="apple-touch-icon" href="9.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        aurafi: {
+                            cyan: '#00c4f4',
+                            dark: '#030303',
+                            panel: '#0a0a0a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Three.js for 3D Background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        /* Strict overflow rules to forcefully prevent mobile shrinking/zooming */
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            /* Fallback for better iOS sizing */
+            min-height: 100dvh; 
+            overflow-x: hidden;
+            background-color: #030303;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior-y: none;
+        }
+
+        ::selection {
+            background-color: #00c4f4;
+            color: #ffffff;
+        }
+
+        /* Lock canvas dimensions to forcefully prevent it from expanding the mobile viewport */
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            outline: none;
+            touch-action: none;
+        }
+
+        /* Hide default cursor on desktop */
+        @media (pointer: fine) {
+            body, a, button, input { cursor: none !important; }
+        }
+
+        /* Custom Cursor Elements */
+        .custom-cursor-dot {
+            position: fixed;
+            top: 0; left: 0;
+            width: 8px; height: 8px;
+            background-color: #00c4f4;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        
+        .custom-cursor-outline {
+            position: fixed;
+            top: 0; left: 0;
+            width: 40px; height: 40px;
+            border: 1px solid rgba(0, 196, 244, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            display: none;
+        }
+        
+        @media (pointer: fine) {
+            .custom-cursor-dot, .custom-cursor-outline { display: block; }
+        }
+
+        .cursor-hovering {
+            width: 60px; height: 60px;
+            background-color: rgba(0, 196, 244, 0.1);
+            border-color: rgba(0, 196, 244, 0.8);
+        }
+
+        /* Background Effects */
+        .bg-grid {
+            background-size: 50px 50px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+        }
+
+        .glow-orb {
+            background: radial-gradient(circle, rgba(0,196,244,0.1) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(100px);
+        }
+
+        .dark-logo {
+            filter: invert(1) hue-rotate(180deg) brightness(1.2);
+        }
+
+        /* Animations */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUpAnim 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeUpAnim {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+    </style>
+</head>
+<body class="antialiased selection:bg-[#00c4f4] selection:text-white">
+
+    <!-- 
+      GLOBAL WRAPPER: 
+      This is the magic fix for iOS zooming. Everything is locked inside 
+      this overflow-hidden wrapper so nothing can expand past 100vw.
+    -->
+    <div id="app-wrapper" class="relative w-full min-h-screen flex flex-col justify-between overflow-hidden">
+        
+        <!-- Custom Cursor -->
+        <div class="custom-cursor-dot" id="cursor-dot"></div>
+        <div class="custom-cursor-outline" id="cursor-outline"></div>
+
+        <!-- 3D Background Container -->
+        <div id="three-container" class="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen overflow-hidden w-full h-full"></div>
+        
+        <!-- Grid & Glow Overlays -->
+        <div class="absolute inset-0 z-0 pointer-events-none bg-grid w-full h-full"></div>
+        <!-- Replaced vw units with fixed pixels/percentages to prevent layout breaking on mobile -->
+        <div class="absolute top-[-10%] left-[-20%] w-[600px] h-[600px] sm:w-[800px] sm:h-[800px] rounded-full glow-orb z-0 pointer-events-none"></div>
+
+        <!-- Navigation / Header -->
+        <header class="relative z-10 w-full py-6 md:py-8 px-4 sm:px-6 md:px-12 flex justify-between items-center max-w-7xl mx-auto">
+            <a href="#" class="flex items-center gap-2 group shrink-0">
+                <img src="7.png" alt="Aurafi Studio Logo" class="h-6 sm:h-8 md:h-10 object-contain dark-logo transition-transform duration-500 group-hover:scale-105" />
+            </a>
+            <div class="flex items-center gap-2 sm:gap-3 bg-white/5 border border-white/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-mono text-aurafi-cyan shadow-[0_0_15px_rgba(0,196,244,0.1)] backdrop-blur-md shrink-0 whitespace-nowrap">
+                <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-aurafi-cyan animate-pulse shrink-0"></div>
+                AGENCY INITIALIZING
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="relative z-10 flex-grow flex flex-col items-center justify-center px-4 sm:px-6 md:px-12 w-full max-w-4xl mx-auto text-center py-10 md:py-20">
+            
+            <!-- Pre-heading -->
+            <div class="fade-up inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-aurafi-cyan/30 bg-aurafi-cyan/10 text-aurafi-cyan text-[10px] sm:text-xs font-semibold tracking-widest uppercase mb-6 md:mb-8 shadow-[0_0_20px_rgba(0,196,244,0.1)] backdrop-blur-sm">
+                <i data-lucide="sparkles" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                Premium AI Services
+            </div>
+            
+            <!-- Heading -->
+            <h1 class="fade-up delay-100 text-[2.5rem] leading-[1.1] sm:text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-tight sm:tracking-tighter mb-6 md:mb-8 w-full">
+                The Intelligence <br class="hidden sm:block" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-zinc-600 block sm:inline">
+                    Behind Iconic Brands.
+                </span>
+            </h1>
+            
+            <!-- Description -->
+            <p class="fade-up delay-200 text-sm sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-8 md:mb-12 leading-relaxed font-light">
+                We are currently upgrading our service offerings and AI workflows. Join the waitlist to secure priority access to our next-generation branding, content creation, and automation services.
+            </p>
+            
+            <!-- Waitlist Form (Formspree Integration) -->
+            <form action="https://formspree.io/f/xvzwqkgv" method="POST" id="waitlist-form" class="fade-up delay-300 w-full max-w-md mx-auto relative group">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-aurafi-cyan to-blue-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                <div class="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-[#0a0a0a] border border-white/10 rounded-xl p-1.5 focus-within:border-aurafi-cyan/50 transition-colors gap-2 sm:gap-0 w-full">
+                    <div class="flex items-center w-full flex-grow">
+                        <i data-lucide="mail" class="w-5 h-5 text-zinc-500 ml-3 shrink-0 hidden sm:block"></i>
+                        <input 
+                            type="email" 
+                            name="email"
+                            required
+                            placeholder="Enter your email address" 
+                            class="w-full bg-transparent border-none outline-none text-white px-4 py-3 sm:py-3 placeholder:text-zinc-600 font-medium text-sm text-center sm:text-left rounded-lg"
+                        />
+                    </div>
+                    <button type="submit" class="w-full sm:w-auto shrink-0 bg-white text-black px-6 py-3.5 sm:py-3 rounded-lg text-sm font-bold hover:bg-aurafi-cyan transition-colors flex items-center justify-center gap-2">
+                        Request Access <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <!-- Success message handling -->
+                <p id="success-msg" class="hidden mt-4 text-aurafi-cyan text-sm font-medium"><i data-lucide="check-circle" class="w-4 h-4 inline mr-1"></i> Coordinates received. Awaiting system boot.</p>
+            </form>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="relative z-10 w-full py-6 md:py-8 px-4 sm:px-6 md:px-12 flex flex-col sm:flex-row justify-between items-center max-w-7xl mx-auto border-t border-white/5 gap-4 sm:gap-0">
+            <div class="flex items-center justify-center gap-2 text-zinc-600 text-[10px] sm:text-xs font-medium text-center">
+                <img src="10.png" alt="dot" class="w-1.5 h-1.5 sm:w-2 sm:h-2 dark-logo shrink-0" /> 
+                © <span id="year"></span> Aurafi.studio. Neural network isolated.
+            </div>
+            
+            <div class="flex gap-4">
+                <a href="https://www.instagram.com/aurafi.studio" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full border border-white/10 bg-[#0a0a0a] flex items-center justify-center text-zinc-400 hover:text-aurafi-cyan hover:border-aurafi-cyan/50 transition-all group shadow-[0_0_10px_rgba(0,196,244,0)] hover:shadow-[0_0_15px_rgba(0,196,244,0.3)] shrink-0">
+                    <i data-lucide="instagram" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                </a>
+            </div>
+        </footer>
+
+    </div> <!-- End App Wrapper -->
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // ----------------------------------------------------
+        // CURSOR LOGIC
+        // ----------------------------------------------------
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorOutline = document.getElementById('cursor-outline');
+
+        window.addEventListener('mousemove', (e) => {
+            if (window.matchMedia("(pointer: fine)").matches) {
+                cursorDot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+                cursorOutline.animate({
+                    transform: `translate3d(${e.clientX}px, ${e.clientY}px, 0)`
+                }, { duration: 500, fill: "forwards" });
+            }
+        });
+
+        window.addEventListener('mouseover', (e) => {
+            if (e.target.tagName.toLowerCase() === 'a' || e.target.tagName.toLowerCase() === 'button' || e.target.closest('button') || e.target.closest('a') || e.target.tagName.toLowerCase() === 'input') {
+                cursorOutline.classList.add('cursor-hovering');
+            } else {
+                cursorOutline.classList.remove('cursor-hovering');
+            }
+        });
+
+        // ----------------------------------------------------
+        // THREE.JS NEURAL BACKGROUND LOGIC
+        // ----------------------------------------------------
+        window.addEventListener('load', () => {
+            const container = document.getElementById('three-container');
+            if (!container) return;
+            
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            // "false" prevents Three.js from injecting inline width/height pixel values which cause mobile overflow
+            renderer.setSize(window.innerWidth, window.innerHeight, false); 
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+            container.appendChild(renderer.domElement);
+            
+            // Adjust particle count based on screen width
+            const isMobile = window.innerWidth < 768;
+            const particlesCount = isMobile ? 250 : 700;
+            const geometry = new THREE.BufferGeometry();
+            const posArray = new Float32Array(particlesCount * 3);
+            
+            for(let i = 0; i < particlesCount * 3; i++) { posArray[i] = (Math.random() - 0.5) * 15; }
+            
+            geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const material = new THREE.PointsMaterial({
+                size: 0.025, color: 0x00c4f4, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending
+            });
+            
+            const particlesMesh = new THREE.Points(geometry, material);
+            scene.add(particlesMesh);
+            camera.position.z = 4;
+            
+            let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
+            let windowHalfX = window.innerWidth / 2;
+            let windowHalfY = window.innerHeight / 2;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX - windowHalfX); mouseY = (e.clientY - windowHalfY);
+            });
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                targetX = mouseX * 0.001; targetY = mouseY * 0.001;
+                particlesMesh.rotation.y += 0.001; particlesMesh.rotation.x += 0.0005;
+                particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
+                particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            // Safe resize listener to guarantee bounds
+            window.addEventListener('resize', () => {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                windowHalfX = width / 2;
+                windowHalfY = height / 2;
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height, false);
+            });
+
+            // Initial manual resize trigger to settle iOS layout
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
+        });
+    </script>
+
+    <script>
+    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="pjuTEgX3z7skN0PjrFPkY";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
+
+</body>
+</html>
