@@ -422,17 +422,15 @@ function startWordAnimation() {
 // Auto Detect Operating System
 function setupPlatformDetection() {
   const ua = window.navigator.userAgent.toLowerCase();
-  let detectedPlatform = "mac-silicon";
-  let labelText = "Download for macOS (Apple Silicon)";
+  let detectedPlatform = "macos-universal";
+  let labelText = "Download for macOS (Universal)";
 
   if (ua.includes("win")) {
     detectedPlatform = "windows-x64";
     labelText = "Download for Windows 10 / 11 (64-bit)";
   } else if (ua.includes("mac")) {
-    // Check if Intel or Silicon
-    // In newer WebKit/Chromium, navigator.userAgentData or WebGL renderer can hint, but default to Apple Silicon
-    detectedPlatform = "mac-silicon";
-    labelText = "Download for macOS (Apple Silicon M1-M4)";
+    detectedPlatform = "macos-universal";
+    labelText = "Download for macOS (Universal)";
   }
 
   // Update primary CTA buttons
@@ -483,7 +481,7 @@ function setupModalHandlers() {
 
       // Track platform download to Admin analytics
       const pLower = platformName.toLowerCase();
-      const osKey = pLower.includes("silicon") ? "macos_arm64" : (pLower.includes("intel") ? "macos_x86_64" : "windows_x64");
+      const osKey = pLower.includes("mac") ? "macos_universal" : "windows_x64";
       fetch("/api/downloads/track", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
