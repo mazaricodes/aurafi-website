@@ -456,7 +456,7 @@ function setupModalHandlers() {
       e.preventDefault();
       const edition = btn.getAttribute("data-edition") || "Lafzi Base";
       if (modalTitle) {
-        modalTitle.textContent = edition === "studio" ? "Download Lafzi Studio" : "Download Lafzi Free";
+        modalTitle.textContent = edition === "studio" ? "Download Lafzi Studio" : "Download Lafzi";
       }
       if (modal) modal.classList.add("active");
     });
@@ -565,7 +565,7 @@ function showToast(msg) {
 // -----------------------------------------------------------------------------
 // Gumroad Checkout & Promo Code Integration
 // -----------------------------------------------------------------------------
-const DEFAULT_GUMROAD_URL = window.LAFZI_GUMROAD_URL || "https://gumroad.com/l/lafzi-studio-pro";
+const DEFAULT_GUMROAD_URL = window.LAFZI_GUMROAD_URL || "https://gumroad.com/l/lafzi-studio";
 let activeDiscount = null;
 
 function setupCheckoutAndDiscounts() {

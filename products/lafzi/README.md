@@ -23,16 +23,16 @@ This repository is ready to be hosted directly on **GitHub Pages**:
 
 ---
 
-## 🍋 Lemon Squeezy Integration (Lafzi Studio Pro)
+## 💳 Gumroad Checkout Integration (Lafzi Studio)
 
-The landing page features built-in Lemon Squeezy checkout integration for **Lafzi Studio Pro** (Rs 2,950):
+The landing page features built-in Gumroad checkout integration for **Lafzi Studio** (Rs 2,950):
 
-- **Overlay Checkout**: Powered by Lemon.js (`https://assets.lemonsqueezy.com/lemon.js`).
-- **Dynamic Promo Codes**: Discounts and cap limits are passed directly to Lemon Squeezy checkout via query parameters (`?checkout[discount_code]=CODE`).
+- **Overlay Checkout**: Powered by Gumroad Overlay (`https://gumroad.com/js/gumroad.js`).
+- **Dynamic Promo Codes**: Discounts and promo codes are passed directly to Gumroad checkout via query parameters (`?discount_code=CODE`).
 - **Configuration**:
-  To connect your own live Lemon Squeezy product URL, update `DEFAULT_LEMON_SQUEEZY_URL` in `script.js` or define `window.LAFZI_LEMON_SQUEEZY_URL`:
+  To connect your own live Gumroad product URL, update `DEFAULT_GUMROAD_URL` in `script.js` or define `window.LAFZI_GUMROAD_URL`:
   ```javascript
-  window.LAFZI_LEMON_SQUEEZY_URL = "https://yourstore.lemonsqueezy.com/buy/YOUR-PRODUCT-ID";
+  window.LAFZI_GUMROAD_URL = "https://gumroad.com/l/YOUR-PRODUCT-SLUG";
   ```
 
 ---
