@@ -1,0 +1,432 @@
+/**
+ * LAFZI — Admin Portal Interactivity
+ * Handles:
+ * - Real-time metrics loading (Revenue, Installs, Downloads, Licenses)
+ * - Software update publishing and remote manifest management
+ * - License key generation, search, and revocation
+ * - Discount code creation with cap limits and active toggling
+ * - Lemon Squeezy order fulfillment and test simulator
+ */
+
+let currentData = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupTabs();
+  loadAdminMetrics();
+  setupForms();
+});
+
+// Setup Navigation Tabs
+function setupTabs() {
+  const tabs = document.querySelectorAll(".tab-btn");
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      const target = tab.getAttribute("data-tab");
+      document.querySelectorAll(".tab-content").forEach((c) => {
+        c.classList.remove("active");
+      });
+
+      const activeContent = document.getElementById(target);
+      if (activeContent) activeContent.classList.add("active");
+    });
+  });
+}
+
+// Load Metrics from Backend
+async function loadAdminMetrics() {
+  try {
+    const res = await fetch("/api/admin/metrics");
+    if (!res.ok) throw new Error("Failed to load metrics");
+    const data = await res.json();
+    currentData = data;
+    renderMetrics(data);
+    renderRecentOrders(data.recent_orders || []);
+    renderLicenseRegistry(data.recent_licenses || []);
+    renderDiscountsTable(data.discounts || []);
+    renderUpdateManifest(data.updates || {});
+    renderDownloadsBreakdown(data.downloads || {});
+  } catch (err) {
+    console.error("Metrics load error:", err);
+  }
+}
+
+// Render Top 4 KPI Cards
+function renderMetrics(data) {
+  const rev = data.revenue || {};
+  const users = data.users || {};
+  const dl = data.downloads || {};
+  const lics = data.licenses || {};
+
+  const symbol = rev.currency_symbol || "Rs";
+
+  // Card 1: Revenue
+  const revElem = document.getElementById("metricRevenue");
+  if (revElem) revElem.textContent = `${symbol} ${Math.round(rev.total || 0).toLocaleString()}`;
+  const revSub = document.getElementById("metricRevenueSub");
+  if (revSub) revSub.textContent = `${rev.order_count || 0} completed orders (${symbol} ${rev.base_price || 2950} base)`;
+
+  // Card 2: Active Installs
+  const userElem = document.getElementById("metricInstalls");
+  if (userElem) userElem.textContent = (users.total_installs || 0).toLocaleString();
+  const userSub = document.getElementById("metricInstallsSub");
+  if (userSub) userSub.textContent = `${users.studio_installs || 0} Studio • ${users.base_installs || 0} Free`;
+
+  // Card 3: Total Downloads
+  const dlElem = document.getElementById("metricDownloads");
+  if (dlElem) dlElem.textContent = (dl.total || 0).toLocaleString();
+  const dlSub = document.getElementById("metricDownloadsSub");
+  if (dlSub) dlSub.textContent = `${dl.macos_arm64 || 0} M-Silicon • ${dl.macos_x86_64 || 0} Intel • ${dl.windows_x64 || 0} Win`;
+
+  // Card 4: Active License Keys
+  const licElem = document.getElementById("metricLicenses");
+  if (licElem) licElem.textContent = (lics.active_available || 0).toLocaleString();
+  const licSub = document.getElementById("metricLicensesSub");
+  if (licSub) licSub.textContent = `${lics.total_issued || 0} issued • ${lics.revoked || 0} revoked`;
+}
+
+// Render Downloads Platform Breakdown
+function renderDownloadsBreakdown(dl) {
+  const total = Math.max(1, dl.total || 0);
+  const m1Pct = Math.round(((dl.macos_arm64 || 0) / total) * 100);
+  const intelPct = Math.round(((dl.macos_x86_64 || 0) / total) * 100);
+  const winPct = Math.round(((dl.windows_x64 || 0) / total) * 100);
+
+  const container = document.getElementById("downloadsPlatformBar");
+  if (container) {
+    container.innerHTML = `
+      <div style="display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.06); margin-bottom: 12px;">
+        <div style="width: ${m1Pct}%; background: #ef2b2d;" title="Apple Silicon: ${dl.macos_arm64 || 0}"></div>
+        <div style="width: ${intelPct}%; background: #fbbf24;" title="Intel Mac: ${dl.macos_x86_64 || 0}"></div>
+        <div style="width: ${winPct}%; background: #00ffb2;" title="Windows: ${dl.windows_x64 || 0}"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-family: var(--font-mono); color: var(--text-muted);">
+        <span><strong style="color: #ef2b2d;"> Apple Silicon:</strong> ${dl.macos_arm64 || 0} (${m1Pct}%)</span>
+        <span><strong style="color: #fbbf24;"> Intel Mac:</strong> ${dl.macos_x86_64 || 0} (${intelPct}%)</span>
+        <span><strong style="color: #00ffb2;">⊞ Windows:</strong> ${dl.windows_x64 || 0} (${winPct}%)</span>
+      </div>
+    `;
+  }
+}
+
+// Render Recent Orders Table
+function renderRecentOrders(orders) {
+  const tbody = document.getElementById("ordersTableBody");
+  if (!tbody) return;
+
+  if (orders.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 24px;">No customer orders recorded yet. Use the Test Simulator tab to create one.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = orders.map((o) => `
+    <tr>
+      <td><strong>${o.order_id}</strong></td>
+      <td>${o.customer_name}<br><span style="font-size: 0.74rem; color: var(--text-dim);">${o.customer_email}</span></td>
+      <td><strong>Rs ${Math.round(o.amount).toLocaleString()}</strong></td>
+      <td>${o.discount_code ? `<span class="badge badge-warning">${o.discount_code}</span>` : "—"}</td>
+      <td><code style="font-family: var(--font-mono); font-size: 0.78rem;">${o.license_key}</code></td>
+      <td><span class="badge badge-active">Completed</span></td>
+    </tr>
+  `).join("");
+}
+
+// Render License Registry Table
+function renderLicenseRegistry(licenses) {
+  const tbody = document.getElementById("licenseTableBody");
+  if (!tbody) return;
+
+  if (licenses.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 24px;">No licenses issued yet. Click "Generate Keys" above.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = licenses.map((l) => {
+    const isRevoked = l.status === "revoked";
+    const isActive = l.status === "active";
+    const badgeClass = isRevoked ? "badge-revoked" : (isActive ? "badge-active" : "badge-warning");
+    const label = isRevoked ? "Revoked" : (isActive ? "Bound to HWID" : "Unused");
+
+    return `
+      <tr>
+        <td>
+          <code style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: #fff;">${l.key}</code>
+          <button class="btn btn-sm btn-secondary" style="margin-left: 6px; padding: 2px 6px;" onclick="copyText('${l.key}')">📋</button>
+        </td>
+        <td>${l.email || '<span style="color: var(--text-dim);">Unassigned</span>'}</td>
+        <td><span class="badge ${badgeClass}">${label}</span></td>
+        <td><span style="font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-dim);">${l.hwid_bound || "—"}</span></td>
+        <td>${new Date(l.created_at * 1000).toLocaleDateString()}</td>
+        <td>
+          ${isRevoked 
+            ? `<button class="btn btn-sm btn-secondary" onclick="revokeKey('${l.key}', false)">Reinstate</button>`
+            : `<button class="btn btn-sm btn-danger" onclick="revokeKey('${l.key}', true)">Revoke</button>`
+          }
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// Render Discount Codes Table with Cap Limits
+function renderDiscountsTable(discounts) {
+  const tbody = document.getElementById("discountsTableBody");
+  if (!tbody) return;
+
+  if (discounts.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 24px;">No discount codes created yet.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = discounts.map((d) => {
+    const used = d.used_count || 0;
+    const cap = d.cap || 100;
+    const pct = Math.min(100, Math.round((used / cap) * 100));
+    const isMaxed = used >= cap;
+    const valText = d.type === "percent" ? `${d.value}% OFF` : `Rs ${d.value} Flat`;
+
+    return `
+      <tr>
+        <td><strong style="color: #fff; font-family: var(--font-mono); font-size: 0.95rem;">${d.code}</strong></td>
+        <td><span class="badge badge-warning">${valText}</span></td>
+        <td>
+          <div>${used} / ${cap} redemptions (${pct}%)</div>
+          <div class="cap-track"><div class="cap-fill" style="width: ${pct}%;"></div></div>
+        </td>
+        <td>${isMaxed ? '<span style="color: var(--crimson-light); font-weight: 700;">Cap Reached</span>' : `${cap - used} remaining`}</td>
+        <td>
+          <span class="badge ${d.active && !isMaxed ? 'badge-active' : 'badge-revoked'}">
+            ${d.active ? (isMaxed ? 'Full' : 'Active') : 'Paused'}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-secondary" onclick="toggleDiscount('${d.code}')">
+            ${d.active ? 'Pause' : 'Activate'}
+          </button>
+          <button class="btn btn-sm btn-danger" style="margin-left: 4px;" onclick="deleteDiscount('${d.code}')">
+            ✕
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// Render Software Update Form
+function renderUpdateManifest(upd) {
+  const curVer = document.getElementById("currentPublishedVersion");
+  if (curVer) curVer.textContent = `v${upd.latest_version || "1.0.0"}`;
+
+  const notesPreview = document.getElementById("currentReleaseNotesPreview");
+  if (notesPreview) notesPreview.textContent = upd.release_notes || "No release notes published.";
+
+  const verInput = document.getElementById("updateVersionInput");
+  if (verInput && !verInput.value) verInput.value = upd.latest_version || "1.0.0";
+
+  const notesInput = document.getElementById("updateNotesInput");
+  if (notesInput && !notesInput.value) notesInput.value = upd.release_notes || "";
+
+  const dl = upd.downloads || {};
+  if (document.getElementById("updateDlSilicon")) document.getElementById("updateDlSilicon").value = dl.macos_arm64 || "";
+  if (document.getElementById("updateDlIntel")) document.getElementById("updateDlIntel").value = dl.macos_x86_64 || "";
+  if (document.getElementById("updateDlWindows")) document.getElementById("updateDlWindows").value = dl.windows_x64 || "";
+}
+
+// Setup Form Submission Handlers
+function setupForms() {
+  // 1. Software Update Form
+  const updateForm = document.getElementById("publishUpdateForm");
+  if (updateForm) {
+    updateForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const version = document.getElementById("updateVersionInput").value.trim();
+      const notes = document.getElementById("updateNotesInput").value.trim();
+      const mandatory = document.getElementById("updateMandatoryCheck").checked;
+      const downloads = {
+        macos_arm64: document.getElementById("updateDlSilicon").value.trim(),
+        macos_x86_64: document.getElementById("updateDlIntel").value.trim(),
+        windows_x64: document.getElementById("updateDlWindows").value.trim(),
+      };
+
+      try {
+        const res = await fetch("/api/admin/updates/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ version, release_notes: notes, mandatory, downloads }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showAdminToast(`✓ Software update v${version} published successfully!`);
+          loadAdminMetrics();
+        } else {
+          alert("Publish failed: " + (data.error || "Unknown error"));
+        }
+      } catch (err) {
+        alert("Error publishing update: " + err.message);
+      }
+    });
+  }
+
+  // 2. Generate Batch Keys
+  const genBtn = document.getElementById("btnGenerateKeys");
+  if (genBtn) {
+    genBtn.addEventListener("click", async () => {
+      const count = parseInt(prompt("How many license keys would you like to generate?", "5"), 10);
+      if (!count || count <= 0) return;
+      const note = prompt("Optional label/note for these keys:", "Manual batch") || "";
+
+      try {
+        const res = await fetch("/api/admin/licenses/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ count, note }),
+        });
+        const keys = await res.json();
+        showAdminToast(`✓ Generated ${keys.length} new Lafzi Studio license key(s)!`);
+        loadAdminMetrics();
+      } catch (err) {
+        alert("Error generating keys: " + err.message);
+      }
+    });
+  }
+
+  // 3. Create Discount Code Modal Form
+  const discForm = document.getElementById("createDiscountForm");
+  if (discForm) {
+    discForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const code = document.getElementById("discCodeInput").value.trim().toUpperCase();
+      const type = document.getElementById("discTypeSelect").value;
+      const value = parseFloat(document.getElementById("discValueInput").value);
+      const cap = parseInt(document.getElementById("discCapInput").value, 10);
+      const description = document.getElementById("discDescInput").value.trim();
+
+      try {
+        const res = await fetch("/api/admin/discounts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code, type, value, cap, description }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showAdminToast(`✓ Promo code ${code} created with cap of ${cap} redemptions!`);
+          closeDiscountModal();
+          loadAdminMetrics();
+        } else {
+          alert("Failed to create code: " + (data.error || "Unknown error"));
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+  }
+
+  // 4. Test Purchase Simulator Form
+  const simForm = document.getElementById("simulatePurchaseForm");
+  if (simForm) {
+    simForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("simNameInput").value.trim() || "Test Creator";
+      const email = document.getElementById("simEmailInput").value.trim() || "creator@example.com";
+      const amount = parseFloat(document.getElementById("simAmountInput").value) || 2950;
+      const code = document.getElementById("simDiscountInput").value.trim();
+
+      try {
+        const res = await fetch("/api/admin/test-purchase", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customer_name: name, customer_email: email, amount, discount_code: code }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showAdminToast(`✓ Simulated purchase successful! Key issued: ${data.license_key}`);
+          loadAdminMetrics();
+        }
+      } catch (err) {
+        alert("Simulation error: " + err.message);
+      }
+    });
+  }
+}
+
+// Toggle Discount Code
+async function toggleDiscount(code) {
+  try {
+    await fetch(`/api/admin/discounts/${encodeURIComponent(code)}/toggle`, { method: "POST" });
+    loadAdminMetrics();
+  } catch (err) {
+    alert("Error toggling discount: " + err.message);
+  }
+}
+
+// Delete Discount Code
+async function deleteDiscount(code) {
+  if (!confirm(`Delete promo code "${code}"?`)) return;
+  try {
+    await fetch(`/api/admin/discounts/${encodeURIComponent(code)}`, { method: "DELETE" });
+    loadAdminMetrics();
+  } catch (err) {
+    alert("Error deleting discount: " + err.message);
+  }
+}
+
+// Revoke or Reinstate License Key
+async function revokeKey(key, revoke) {
+  if (revoke && !confirm(`Revoke license key ${key}? This will immediately lock the user's Studio export.`)) return;
+  try {
+    await fetch(`/api/admin/licenses/${encodeURIComponent(key)}/revoke`, { method: "POST" });
+    loadAdminMetrics();
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
+// Helper: Open / Close Discount Modal
+function openDiscountModal() {
+  const m = document.getElementById("discountModal");
+  if (m) m.classList.add("active");
+}
+
+function closeDiscountModal() {
+  const m = document.getElementById("discountModal");
+  if (m) m.classList.remove("active");
+}
+
+// Toast helper
+function showAdminToast(msg) {
+  let toast = document.getElementById("adminToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "adminToast";
+    toast.style.position = "fixed";
+    toast.style.bottom = "24px";
+    toast.style.right = "24px";
+    toast.style.background = "#181822";
+    toast.style.border = "1px solid var(--border-active)";
+    toast.style.color = "#ffffff";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "8px";
+    toast.style.fontFamily = "var(--font-mono)";
+    toast.style.fontSize = "0.82rem";
+    toast.style.boxShadow = "0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(239, 43, 45, 0.3)";
+    toast.style.zIndex = "9999";
+    toast.style.transition = "all 0.3s ease";
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = msg;
+  toast.style.opacity = "1";
+  toast.style.transform = "translateY(0)";
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(10px)";
+  }, 3000);
+}
+
+function copyText(txt) {
+  navigator.clipboard?.writeText(txt);
+  showAdminToast(`Copied to clipboard: ${txt}`);
+}

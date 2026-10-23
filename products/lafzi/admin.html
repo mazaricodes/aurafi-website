@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lafzi — Command & Control Admin Portal</title>
+  <link rel="icon" type="image/png" href="./assets/lafzi-icon.png">
+  <link rel="stylesheet" href="./admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-bg-noise"></div>
+
+  <div class="admin-layout">
+    <!-- Top Header -->
+    <header class="admin-header">
+      <div class="brand-meta">
+        <img src="./assets/lafzi-logo.png" alt="Lafzi Logo">
+        <span class="admin-badge">COMMAND CENTER</span>
+        <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mint);">
+          ● Production Engine Online
+        </span>
+      </div>
+
+      <div class="header-actions">
+        <a href="/landing" class="btn btn-secondary btn-sm" target="_blank">
+          🌐 View Landing Page
+        </a>
+        <button class="btn btn-primary btn-sm" onclick="loadAdminMetrics()">
+          ↻ Refresh Metrics
+        </button>
+      </div>
+    </header>
+
+    <!-- Top 4 KPI Metrics Row -->
+    <section class="metrics-grid">
+      <!-- Metric 1: Revenue -->
+      <div class="metric-card">
+        <div class="metric-label">
+          <span>Gross Revenue</span>
+          <span>💰</span>
+        </div>
+        <div class="metric-value" id="metricRevenue">Rs 0</div>
+        <div class="metric-sub" id="metricRevenueSub">0 completed sales</div>
+      </div>
+
+      <!-- Metric 2: Installs & Users -->
+      <div class="metric-card">
+        <div class="metric-label">
+          <span>Active App Installs</span>
+          <span>👥</span>
+        </div>
+        <div class="metric-value" id="metricInstalls">0</div>
+        <div class="metric-sub" id="metricInstallsSub">0 Studio • 0 Free</div>
+      </div>
+
+      <!-- Metric 3: Downloads -->
+      <div class="metric-card">
+        <div class="metric-label">
+          <span>Total App Downloads</span>
+          <span>⬇️</span>
+        </div>
+        <div class="metric-value" id="metricDownloads">0</div>
+        <div class="metric-sub" id="metricDownloadsSub">0 M-Silicon • 0 Intel • 0 Windows</div>
+      </div>
+
+      <!-- Metric 4: License Keys -->
+      <div class="metric-card">
+        <div class="metric-label">
+          <span>Active Licenses</span>
+          <span>🔑</span>
+        </div>
+        <div class="metric-value" id="metricLicenses">0</div>
+        <div class="metric-sub" id="metricLicensesSub">0 issued • 0 revoked</div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="admin-tabs">
+      <button class="tab-btn active" data-tab="tabOverview">📊 Overview & Revenue</button>
+      <button class="tab-btn" data-tab="tabUpdates">🚀 Send Software Updates</button>
+      <button class="tab-btn" data-tab="tabLicenses">🔑 License Keys Registry</button>
+      <button class="tab-btn" data-tab="tabDiscounts">🏷️ Discount Codes (Cap Limits)</button>
+      <button class="tab-btn" data-tab="tabLemon">🍋 Lemon Squeezy & Orders</button>
+    </nav>
+
+    <!-- TAB 1: OVERVIEW & REVENUE -->
+    <section id="tabOverview" class="tab-content active">
+      <!-- Download Platform Distribution -->
+      <div class="admin-card">
+        <div class="card-title-row">
+          <div class="card-title">🖥️ Downloads Platform Distribution</div>
+          <span style="font-size: 0.76rem; font-family: var(--font-mono); color: var(--text-dim);">
+            Real-time downloads tracked from landing page
+          </span>
+        </div>
+        <div id="downloadsPlatformBar">
+          <!-- Populated by admin.js -->
+        </div>
+      </div>
+
+      <!-- Recent Orders Stream -->
+      <div class="admin-card">
+        <div class="card-title-row">
+          <div class="card-title">🛒 Recent Customer Transactions</div>
+          <span style="font-size: 0.78rem; color: var(--text-muted);">
+            Lafzi Studio Purchases @ Rs 2,950
+          </span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Revenue</th>
+                <th>Promo Code</th>
+                <th>Issued License Key</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <!-- Populated by admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: SEND SOFTWARE UPDATES -->
+    <section id="tabUpdates" class="tab-content">
+      <div class="form-grid">
+        <!-- Publish New Version Form -->
+        <div class="admin-card">
+          <div class="card-title-row">
+            <div class="card-title">📢 Broadcast Software Update</div>
+            <span class="badge badge-active" id="currentPublishedVersion">v1.0.0</span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px;">
+            Publishing here updates the remote manifest (<code>/api/version.json</code>) checked by all running instances of Lafzi on macOS and Windows.
+          </p>
+
+          <form id="publishUpdateForm">
+            <div class="form-group">
+              <label class="form-label">New Release Version (SemVer)</label>
+              <input type="text" class="input" id="updateVersionInput" placeholder="e.g. 1.1.0" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Release Notes / Changelog</label>
+              <textarea class="textarea" id="updateNotesInput" rows="4" placeholder="What's new in this release..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">macOS Apple Silicon Download URL (arm64)</label>
+              <input type="url" class="input" id="updateDlSilicon" placeholder="https://downloads.lafzi.app/v1.1.0/LafziStudio-AppleSilicon.dmg">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">macOS Intel Mac Download URL (x86_64)</label>
+              <input type="url" class="input" id="updateDlIntel" placeholder="https://downloads.lafzi.app/v1.1.0/LafziStudio-Intel.dmg">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Windows 10/11 Download URL (x64)</label>
+              <input type="url" class="input" id="updateDlWindows" placeholder="https://downloads.lafzi.app/v1.1.0/LafziStudio-Windows-x64.zip">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin: 16px 0 20px;">
+              <input type="checkbox" id="updateMandatoryCheck">
+              <label for="updateMandatoryCheck" style="font-size: 0.82rem; color: var(--text-main); cursor: pointer;">
+                Mandatory Update (forces users to upgrade before exporting)
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+              🚀 Publish & Broadcast Update
+            </button>
+          </form>
+        </div>
+
+        <!-- Release Notes Preview -->
+        <div class="admin-card">
+          <div class="card-title-row">
+            <div class="card-title">👁️ In-App Broadcast Preview</div>
+            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);">
+              OTA Client Preview
+            </span>
+          </div>
+          <div style="background: #09090c; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 18px; font-size: 0.82rem;">
+            <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; color: var(--crimson-light);">
+              ⚡ Update Available: Lafzi Studio
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 12px;" id="currentReleaseNotesPreview">
+              Loading current release notes...
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <span class="btn btn-primary btn-sm" style="pointer-events: none;">⬇ Download & Install</span>
+              <span class="btn btn-secondary btn-sm" style="pointer-events: none;">Later</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: LICENSE KEYS REGISTRY -->
+    <section id="tabLicenses" class="tab-content">
+      <div class="admin-card">
+        <div class="card-title-row">
+          <div>
+            <div class="card-title">🔑 Hardware-Bound License Keys</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+              Keys generated here are authenticated by SHA256 cryptographic checksums and locked to device HWID.
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btnGenerateKeys">
+            + Generate License Keys
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>License Key</th>
+                <th>Assigned Email</th>
+                <th>Status</th>
+                <th>Bound Hardware ID</th>
+                <th>Date Issued</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="licenseTableBody">
+              <!-- Populated by admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: DISCOUNT CODES (WITH CAP LIMITS) -->
+    <section id="tabDiscounts" class="tab-content">
+      <div class="admin-card">
+        <div class="card-title-row">
+          <div>
+            <div class="card-title">🏷️ Promo Codes & Redemption Cap Limits</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+              Create percentage or flat discount codes. Once redemptions reach the cap limit, the code automatically expires.
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="openDiscountModal()">
+            + Create Promo Code
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Usage vs Cap</th>
+                <th>Available</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="discountsTableBody">
+              <!-- Populated by admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: LEMON SQUEEZY & ORDERS -->
+    <section id="tabLemon" class="tab-content">
+      <div class="form-grid">
+        <!-- Lemon Squeezy Webhook Config -->
+        <div class="admin-card">
+          <div class="card-title-row">
+            <div class="card-title">🍋 Lemon Squeezy Webhook Integration</div>
+            <span class="badge badge-active">Auto-Fulfillment Ready</span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+            In your Lemon Squeezy Dashboard (Settings ➔ Webhooks), add this URL to automatically issue license keys on successful checkout:
+          </p>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 18px;">
+            <input type="text" class="input" style="flex: 1; font-family: var(--font-mono); font-size: 0.82rem;" readonly value="http://localhost:8765/api/webhooks/lemonsqueezy" id="webhookUrlInput">
+            <button class="btn btn-secondary" onclick="copyText(document.getElementById('webhookUrlInput').value)">
+              📋 Copy
+            </button>
+          </div>
+
+          <div style="font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;">
+            <strong>Fulfillment Lifecycle:</strong><br>
+            1. Customer completes Rs 2,950 purchase on Lemon Squeezy.<br>
+            2. Lemon Squeezy notifies <code>/api/webhooks/lemonsqueezy</code>.<br>
+            3. Server generates a cryptographically signed license key, increments promo cap (if applied), and records the sale in your Revenue Dashboard.
+          </div>
+        </div>
+
+        <!-- Development Purchase Simulator -->
+        <div class="admin-card">
+          <div class="card-title-row">
+            <div class="card-title">🧪 Test Purchase Simulator</div>
+            <span class="badge badge-warning">Dev Sandbox</span>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
+            Test the complete end-to-end checkout, license key issuance, and discount cap counter without spending money.
+          </p>
+
+          <form id="simulatePurchaseForm">
+            <div class="form-group">
+              <label class="form-label">Customer Name</label>
+              <input type="text" class="input" id="simNameInput" value="Hamza Ali">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Customer Email</label>
+              <input type="email" class="input" id="simEmailInput" value="hamza.ali@example.com">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Order Total (PKR)</label>
+              <input type="number" class="input" id="simAmountInput" value="2950">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Optional Promo Code Used</label>
+              <input type="text" class="input" id="simDiscountInput" placeholder="e.g. LAUNCH50">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px;">
+              ⚡ Simulate Checkout & Issue License
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Create Discount Code Modal -->
+  <div class="admin-modal" id="discountModal">
+    <div class="admin-modal-card">
+      <div class="card-title-row">
+        <div class="card-title">Create Promo Code with Cap</div>
+        <button class="btn btn-sm btn-secondary" onclick="closeDiscountModal()">✕</button>
+      </div>
+
+      <form id="createDiscountForm">
+        <div class="form-group">
+          <label class="form-label">Promo Code Name</label>
+          <input type="text" class="input" id="discCodeInput" placeholder="e.g. DESI50" required style="text-transform: uppercase;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Discount Type</label>
+          <select class="select" id="discTypeSelect">
+            <option value="percent">Percentage Off (%)</option>
+            <option value="fixed">Fixed Amount Off (Rs)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Discount Value (e.g. 50 for 50%, or 500 for Rs 500)</label>
+          <input type="number" class="input" id="discValueInput" placeholder="50" required min="1">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Redemption Cap Limit (Max Customers)</label>
+          <input type="number" class="input" id="discCapInput" placeholder="100" value="100" required min="1">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description / Internal Note</label>
+          <input type="text" class="input" id="discDescInput" placeholder="e.g. YouTube influencer promo">
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Create Promo Code</button>
+          <button type="button" class="btn btn-secondary" onclick="closeDiscountModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="./admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lafzi — AI Video Captioning Studio | AURAFi Studio</title>
+  <meta name="description" content="Offline AI video captioning studio engineered for South Asian creators. Transcribe 18 regional languages with native typography, Roman script, and viral creator styles.">
+  <link rel="canonical" href="https://aurafi.studio/products/lafzi/">
+  <link rel="icon" type="image/png" href="./assets/lafzi-icon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+</head>
+<body>
+  <!-- Ambient Atmospheric Lighting & Grid Overlay -->
+  <div class="noise-overlay"></div>
+  <div class="grid-lines"></div>
+
+  <!-- Header & Navigation -->
+  <header class="site-header">
+    <div class="container nav-row">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <a href="#" class="brand-link">
+          <img src="./assets/lafzi-logo.png" alt="Lafzi Logo" class="brand-img">
+          <span class="brand-version">v1.0</span>
+        </a>
+        <a href="https://aurafi.studio" class="aurafi-parent-badge" style="display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.68rem; color: #00d4ff; background: rgba(0, 212, 255, 0.08); border: 1px solid rgba(0, 212, 255, 0.25); padding: 3px 8px; border-radius: 4px; text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s ease;">
+          ⚡ by AURAFi Studio
+        </a>
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#preview">Live Preview</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#languages">18 Languages</a></li>
+          <li><a href="#editions">Editions</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-cta-group">
+        <button class="btn btn-secondary btn-sm" data-open-modal="downloadModal" data-edition="free">
+          Free Edition
+        </button>
+        <button class="btn btn-primary btn-sm btn-glow" data-open-modal="downloadModal" data-edition="studio">
+          Get Studio Pro
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <!-- Brand Logo at Start of Landing Page -->
+        <div class="hero-brand-top">
+          <img src="./assets/lafzi-hero-logo.png" alt="Lafzi Desi Captions" class="hero-brand-logo">
+        </div>
+
+        <div class="hero-eyebrow">
+          <span class="pulse-dot"></span>
+          AI Desi Captions • 100% Private & Offline
+        </div>
+
+        <h1 class="hero-title">
+          Captions That Speak In <span class="text-gradient">Your Voice.</span><br>
+          In Native & Roman.
+        </h1>
+
+        <p class="hero-subtitle">
+          The offline AI video captioning studio engineered for South Asian creators. Transcribe 18 regional languages with native scripts, seamless Roman transliteration, and 24 viral creator styles.
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg btn-glow dynamic-platform-btn" data-open-modal="downloadModal" data-edition="free">
+             Download for macOS
+          </button>
+          <a href="#editions" class="btn btn-secondary btn-lg">
+            Compare Editions & Studio Pro
+          </a>
+        </div>
+
+        <div class="hero-platform-tag">
+          <span> macOS (Apple Silicon & Intel)</span>
+          <span>•</span>
+          <span>⊞ Windows 10 / 11 (64-bit)</span>
+          <span>•</span>
+          <span>⚡ No Cloud Uploads</span>
+        </div>
+
+        <div class="hero-social-proof">
+          <div class="stars-row">★★★★★</div>
+          <div class="proof-text">
+            <strong>4.9 / 5.0</strong> trusted by 1,200+ Urdu, Hindi & Regional creators
+          </div>
+        </div>
+
+        <!-- Interactive Caption Playground -->
+        <div class="playground-wrap" id="preview">
+          <div class="playground-topbar">
+            <div class="window-dots">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="window-title">lafzi-interactive-engine-v1.0.app — Live Video Simulator</div>
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mint);">
+              ● Engine: Metal / DirectML (60 FPS)
+            </div>
+          </div>
+
+          <div class="playground-layout">
+            <!-- Video Stage Simulator -->
+            <div class="preview-stage">
+              <div class="stage-ambient-glow"></div>
+              
+              <!-- Simulated Video Creator Silhouette Badge -->
+              <div style="position: absolute; top: 18px; left: 20px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px;">
+                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef2b2d;"></span>
+                REC 00:01:24 — 1080x1920 (9:16 Reel)
+              </div>
+
+              <!-- Live Dynamic Caption Box -->
+              <div id="captionRenderBox" class="caption-render-box">
+                <!-- Word spans populated and animated by script.js -->
+              </div>
+
+              <div style="position: absolute; bottom: 18px; right: 20px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-dim);">
+                Real-Time Karaoke Highlighting
+              </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="playground-controls">
+              <!-- Script Mode Toggle -->
+              <div>
+                <div class="control-label">Transliteration Mode</div>
+                <div class="script-toggle-group">
+                  <button id="btnScriptRoman" class="script-btn active">Roman Script</button>
+                  <button id="btnScriptNative" class="script-btn">Native Script</button>
+                </div>
+              </div>
+
+              <!-- Language Select -->
+              <div>
+                <div class="control-label">Select Regional Language (18)</div>
+                <select id="langSelect" class="lang-select-box">
+                  <!-- Populated by script.js -->
+                </select>
+              </div>
+
+              <!-- Style Presets -->
+              <div>
+                <div class="control-label">Viral Creator Style Preset</div>
+                <div class="template-pill-grid">
+                  <button class="tpl-chip active" data-style="mrbeast">
+                    MrBeast Impact
+                    <span>Yellow Punch + Black Border</span>
+                  </button>
+                  <button class="tpl-chip" data-style="hormozi">
+                    Hormozi Gold
+                    <span>High Contrast Green / Bold</span>
+                  </button>
+                  <button class="tpl-chip" data-style="crimson">
+                    Lafzi Crimson
+                    <span>Brand Ruby Glow + Syne</span>
+                  </button>
+                  <button class="tpl-chip" data-style="cyber">
+                    Cyber Mint
+                    <span>JetBrains Monospace Glow</span>
+                  </button>
+                  <button class="tpl-chip" data-style="abdaal">
+                    Clean Minimal
+                    <span>Documentary Serif / Soft</span>
+                  </button>
+                  <button class="tpl-chip" data-style="boxhigh">
+                    Boxy Highlight
+                    <span>Liquid Glass Solid Tag</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Hardware Engine Status Card -->
+              <div style="background: #09090c; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px; margin-top: auto;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-family: var(--font-mono); margin-bottom: 4px;">
+                  <span style="color: var(--text-dim);">Local Whisper Engine</span>
+                  <span style="color: var(--mint);">ONLINE</span>
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">
+                  Zero audio sent to third-party servers. 100% on-device inference.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bento Grid Features Section -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-head">
+          <span class="tag">Studio Architecture</span>
+          <h2>Crafted For Creators Who Demand Speed & Privacy</h2>
+          <p>Everything you need to transcribe, style, and export viral short-form content without paying monthly cloud subscriptions.</p>
+        </div>
+
+        <div class="bento-grid">
+          <!-- Card 1 (Wide): 18 Languages & Transliteration -->
+          <div class="bento-card wide">
+            <div>
+              <div class="bento-icon">🌐</div>
+              <h3>18 South Asian Languages in Native & Roman</h3>
+              <p>
+                From Urdu, Hindi, and Punjabi to Pashto, Sindhi, and Tamil. Lafzi solves the regional creator dilemma: choose between authentic Native calligraphy or phonetic Roman transliteration (Hinglish / Roman Urdu) that keeps viewers hooked.
+              </p>
+            </div>
+            <div class="bento-badge">Phonetic Roman Engine • 18 Language Models</div>
+          </div>
+
+          <!-- Card 2: 100% Offline & Private -->
+          <div class="bento-card">
+            <div>
+              <div class="bento-icon">🔒</div>
+              <h3>100% Offline & Zero Cloud Uploads</h3>
+              <p>
+                Your unreleased videos and brand assets never touch an external server. Everything processes locally on your computer with complete confidentiality.
+              </p>
+            </div>
+            <div class="bento-badge">Zero Data Leakage • 100% Confidential</div>
+          </div>
+
+          <!-- Card 3: Metal & GPU Acceleration -->
+          <div class="bento-card">
+            <div>
+              <div class="bento-icon">⚡</div>
+              <h3>Apple Metal & Windows GPU Acceleration</h3>
+              <p>
+                Engineered in lightweight C++ and optimized Python runtimes. Transcribe a 60-second video in under 4 seconds with smooth 60 FPS timeline scrubbing.
+              </p>
+            </div>
+            <div class="bento-badge">Metal / MPS • DirectML • CUDA</div>
+          </div>
+
+          <!-- Card 4: 1-Click AI Voice Noise Isolation (Studio) -->
+          <div class="bento-card">
+            <div>
+              <div class="bento-icon">🎙️</div>
+              <h3>1-Click AI Voice Noise Isolation</h3>
+              <p>
+                Studio Edition features on-device audio spectral subtraction. Eliminate noisy ceiling fans, street traffic, and room echoes with a single toggle before captioning.
+              </p>
+            </div>
+            <div class="bento-badge">Exclusive to Lafzi Studio</div>
+          </div>
+
+          <!-- Card 5: Universal Subtitle Exports (Studio) -->
+          <div class="bento-card">
+            <div>
+              <div class="bento-icon">📂</div>
+              <h3>Universal Subtitle File Exports</h3>
+              <p>
+                Need to fine-tune in Premiere Pro, DaVinci Resolve, or Final Cut Pro? Studio exports industry-standard <code>.srt</code>, <code>.vtt</code>, <code>.ass</code>, and raw transcript text with frame-accurate timing.
+              </p>
+            </div>
+            <div class="bento-badge">SRT • VTT • ASS • TXT Export</div>
+          </div>
+
+          <!-- Card 6 (Wide): Custom Fonts, Custom Styles & Hardware Licensing -->
+          <div class="bento-card wide">
+            <div>
+              <div class="bento-icon">🎨</div>
+              <h3>Custom Font Uploads, Preset Styles & Anti-Piracy</h3>
+              <p>
+                Bring your signature aesthetic to life. In Lafzi Studio, upload any <code>.ttf</code> or <code>.otf</code> font (such as Jameel Noori Nastaliq, Poppins, or Bebas Neue) and save customized caption styles as permanent one-click presets. Protected by hardware-bound license validation.
+              </p>
+            </div>
+            <div class="bento-badge">Custom Typography • Preset Memory • Hardware Bound</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 Languages Cloud Section -->
+    <section class="languages-section" id="languages">
+      <div class="container">
+        <div class="section-head">
+          <span class="tag">Language Coverage</span>
+          <h2>18 Languages. Zero Typo Guesswork.</h2>
+          <p>Click any language to load instant sample text and test Native script versus Roman transliteration in the live simulator above.</p>
+        </div>
+
+        <div class="languages-chip-cloud" id="languagesCloud">
+          <!-- Populated by script.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing / Editions Comparison Section -->
+    <section class="pricing-section" id="editions">
+      <div class="container">
+        <div class="section-head">
+          <span class="tag">Edition Comparison</span>
+          <h2>Simple, Transparent, Lifetime Pricing</h2>
+          <p>Choose the free standalone version or upgrade to Studio for unlimited duration, custom fonts, and professional video workflows.</p>
+        </div>
+
+        <div class="pricing-grid">
+          <!-- Base Edition -->
+          <div class="pricing-card">
+            <h3 class="pricing-title">Lafzi Free</h3>
+            <p class="pricing-desc">Perfect for quick short-form reels and individual creators testing the offline workflow.</p>
+            
+            <div class="pricing-cost">
+              <span class="amount">$0</span>
+              <span class="period">Forever Free</span>
+            </div>
+
+            <ul class="feature-list">
+              <li><span class="check">✓</span> 2-Minute Maximum Video Length</li>
+              <li><span class="check">✓</span> 18 Languages (Native + Roman Scripts)</li>
+              <li><span class="check">✓</span> Interactive Squeeze & Drag Timeline</li>
+              <li><span class="check">✓</span> Built-in Viral Styles & Animations</li>
+              <li><span class="check">✓</span> High Quality MP4 Video Export</li>
+              <li><span class="check">✓</span> 100% Offline & Private Processing</li>
+              <li class="disabled"><span class="cross">✕</span> Clean Voice Background Noise Isolation</li>
+              <li class="disabled"><span class="cross">✕</span> Export Subtitle Files (.srt, .vtt, .ass)</li>
+              <li class="disabled"><span class="cross">✕</span> Custom Font Upload (.ttf, .otf)</li>
+              <li class="disabled"><span class="cross">✕</span> Save Custom Style Presets</li>
+            </ul>
+
+            <button class="btn btn-secondary" style="width: 100%;" data-open-modal="downloadModal" data-edition="free">
+              Download Free Edition
+            </button>
+          </div>
+
+          <!-- Studio Edition (Featured) -->
+          <div class="pricing-card featured">
+            <div class="featured-tag">Studio Pro</div>
+            <h3 class="pricing-title">Lafzi Studio Pro</h3>
+            <p class="pricing-desc">The complete powerhouse for content agencies, editors, and serious creators.</p>
+            
+            <div class="pricing-cost" id="studioPricingDisplay">
+              <span class="amount" id="studioPriceAmount">Rs 2,950</span>
+              <span class="period">One-time / Lifetime License</span>
+            </div>
+
+            <!-- Interactive Promo Code with Cap Limits -->
+            <div class="promo-box" style="margin-bottom: 20px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px;">
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="promoCodeInput" placeholder="Discount code (e.g. LAUNCH50)" style="flex: 1; background: #0c0c10; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 7px 10px; color: #fff; font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnApplyPromo">Apply</button>
+              </div>
+              <div id="promoFeedbackMsg" style="font-size: 0.74rem; margin-top: 6px; display: none;"></div>
+            </div>
+
+            <ul class="feature-list">
+              <li><span class="check">✓</span> <strong>Unlimited Video Length (No 2-min cap)</strong></li>
+              <li><span class="check">✓</span> 18 Languages (Native + Roman Scripts)</li>
+              <li><span class="check">✓</span> <strong>1-Click AI Voice Background Noise Cleaner</strong></li>
+              <li><span class="check">✓</span> <strong>Export .SRT, .VTT, .ASS & .TXT Subtitles</strong></li>
+              <li><span class="check">✓</span> <strong>Upload Custom Fonts (.ttf, .otf, .woff2)</strong></li>
+              <li><span class="check">✓</span> <strong>Save Unlimited Custom Styles & Palettes</strong></li>
+              <li><span class="check">✓</span> Interactive Squeeze & Drag Timeline</li>
+              <li><span class="check">✓</span> 100% Offline & Zero Server Dependency</li>
+              <li><span class="check">✓</span> Automatic In-App Updates & Priority Engine</li>
+              <li><span class="check">✓</span> Hardware-Bound Anti-Piracy License</li>
+            </ul>
+
+            <a href="https://aurafi.lemonsqueezy.com/checkout/buy/e08836bd-0ad5-4cee-a246-92df7690bf63?embed=1" class="lemonsqueezy-button btn btn-primary btn-glow" style="width: 100%; font-size: 1rem; padding: 14px; text-decoration: none;" id="btnBuyLemonSqueezy" target="_blank" rel="noopener">
+              🍋 Buy Lafzi Studio Pro — Rs 2,950
+            </a>
+            <div style="text-align: center; margin-top: 10px;">
+              <a href="#" style="font-size: 0.76rem; color: var(--text-dim); text-decoration: underline;" data-open-modal="downloadModal" data-edition="studio">
+                or download app build first ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq">
+      <div class="container">
+        <div class="section-head">
+          <span class="tag">Common Inquiries</span>
+          <h2>Frequently Asked Questions</h2>
+          <p>Everything you need to know about Lafzi, system compatibility, and licensing.</p>
+        </div>
+
+        <div class="faq-wrap">
+          <div class="faq-item open">
+            <div class="faq-question">
+              <span>How is Lafzi different from browser-based caption tools?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Unlike web tools like CapCut or online SaaS platforms that require uploading massive video files to cloud servers, Lafzi is a 100% native desktop application. It runs locally on your machine's hardware, meaning your raw footage never leaves your computer, rendering is instantaneous, and you never pay recurring monthly cloud fees.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>How does Roman transliteration work for South Asian languages?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Lafzi features a dual-layer neural transliteration pipeline. It transcribes phonetic regional spoken speech (such as conversational Urdu or Hindi) and can instantly transliterate it into clean, readable Latin/English alphabets (e.g., "Aapka swagat hai" or "Apni video ko viral banayein"). You can switch between Native script and Roman script with a single click.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Which machines and operating systems are supported?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Lafzi is built natively for 3 target environments: macOS Apple Silicon (M1, M2, M3, M4 with Metal GPU acceleration), macOS Intel (x86_64 Core i5/i7/i9), and Windows 10 & 11 (64-bit with DirectML GPU support).
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>What is the 2-minute limit on the Free edition?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Lafzi Free allows video files up to 2 minutes in duration per export—tailor-made for TikToks, Instagram Reels, and YouTube Shorts. For longer formats, interviews, podcasts, and documentaries, Lafzi Studio removes all duration caps completely.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>How does the Lafzi Studio license work?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Lafzi Studio licenses are cryptographically bound to your machine's hardware ID. Once activated with your unique key, your license runs completely offline without requiring continuous phone-home checks, preventing unauthorized account sharing while guaranteeing seamless offline usage.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Can I upload custom fonts like Nastaliq or regional typography?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Yes! In Lafzi Studio, you can drop in any standard font file (<code>.ttf</code>, <code>.otf</code>, or <code>.woff2</code>). Whether you want classical Urdu Nastaliq (Jameel Noori Nastaliq), Devanagari typography, or modern display fonts, your font renders instantly on your video timeline.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Platform Download Modal -->
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal-window">
+      <button class="modal-close" id="modalClose">✕</button>
+      <h3 style="font-size: 1.45rem; margin-bottom: 6px;" id="modalEditionTitle">Download Lafzi</h3>
+      <p style="color: var(--text-muted); font-size: 0.88rem;">
+        Select the architecture that matches your workstation. All packages run 100% locally with zero cloud dependencies.
+      </p>
+
+      <div class="platform-choice-grid">
+        <!-- Mac Apple Silicon -->
+        <div class="platform-card" data-platform-name="macOS Apple Silicon">
+          <div class="platform-meta">
+            <h4> macOS — Apple Silicon</h4>
+            <span>Optimized for M1, M2, M3, M4 • Apple Metal GPU</span>
+          </div>
+          <span class="placeholder-badge">v1.0.0 (ARM64)</span>
+        </div>
+
+        <!-- Mac Intel -->
+        <div class="platform-card" data-platform-name="macOS Intel">
+          <div class="platform-meta">
+            <h4> macOS — Intel x86_64</h4>
+            <span>Compatible with Intel Core i5 / i7 / i9 Macs</span>
+          </div>
+          <span class="placeholder-badge">v1.0.0 (x86_64)</span>
+        </div>
+
+        <!-- Windows 64-bit -->
+        <div class="platform-card" data-platform-name="Windows 10/11">
+          <div class="platform-meta">
+            <h4>⊞ Windows 10 / 11 (64-bit)</h4>
+            <span>Installer & Standalone ZIP • DirectML / CUDA</span>
+          </div>
+          <span class="placeholder-badge">v1.0.0 (Win-x64)</span>
+        </div>
+      </div>
+
+      <div style="background: rgba(239, 43, 45, 0.08); border: 1px solid rgba(239, 43, 45, 0.2); border-radius: var(--radius-sm); padding: 12px; font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px;">
+        <span style="color: var(--crimson-light); font-size: 1rem;">ℹ</span>
+        <span>Download links are currently set to release placeholder packages until public distribution unlocks.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="./assets/lafzi-logo.png" alt="Lafzi Logo" style="height: 32px; width: auto;">
+          <p>
+            The offline AI captioning studio for South Asian creators. Transcribe, style, and export in Native & Roman scripts without cloud compromise.
+          </p>
+        </div>
+
+        <div class="footer-links">
+          <div class="footer-col">
+            <h5>Product</h5>
+            <ul>
+              <li><a href="#preview">Live Simulator</a></li>
+              <li><a href="#features">Studio Architecture</a></li>
+              <li><a href="#languages">18 Languages</a></li>
+              <li><a href="#editions">Pricing & Editions</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h5>Resources</h5>
+            <ul>
+              <li><a href="#faq">FAQ</a></li>
+              <li><a href="#editions">Hardware Licensing</a></li>
+              <li><a href="#features">Apple Metal Acceleration</a></li>
+              <li><a href="./admin.html" target="_blank">Admin Portal ↗</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h5>Connect</h5>
+            <ul>
+              <li><a href="https://twitter.com" target="_blank" rel="noopener">Twitter / X</a></li>
+              <li><a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a></li>
+              <li><a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 Lafzi by <a href="https://aurafi.studio" style="color: #00d4ff; text-decoration: none;">AURAFi Studio</a>. All rights reserved. Engineered for Desi Creators.</div>
+        <div style="font-family: var(--font-mono); color: var(--text-dim);">Built with Boxy Liquid Glass • 100% On-Device</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactivity Script -->
+  <script src="./script.js"></script>
+</body>
+</html>
