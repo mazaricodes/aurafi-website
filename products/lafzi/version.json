@@ -1,0 +1,11 @@
+{
+  "latest_version": "1.0.0",
+  "release_date": "2026-10-24",
+  "release_notes": "Official release of Lafzi & Lafzi Studio.",
+  "download_url": "https://aurafi.studio/products/lafzi/",
+  "download_urls": {
+    "macos_universal": "https://maxxed45.gumroad.com/l/lafzi",
+    "windows_x64": "https://maxxed45.gumroad.com/l/lafzi"
+  },
+  "mandatory": false
+}
