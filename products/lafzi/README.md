@@ -25,15 +25,12 @@ This repository is ready to be hosted directly on **GitHub Pages**:
 
 ## 💳 Gumroad Checkout Integration (Lafzi Studio)
 
-The landing page features built-in Gumroad checkout integration for **Lafzi Studio** (Rs 2,950):
+The landing page features built-in Gumroad checkout integration for **Lafzi Studio** ($10 / Rs 2,950):
 
+- **Live Product URL**: `https://maxxed45.gumroad.com/l/lafzi`
 - **Overlay Checkout**: Powered by Gumroad Overlay (`https://gumroad.com/js/gumroad.js`).
 - **Dynamic Promo Codes**: Discounts and promo codes are passed directly to Gumroad checkout via query parameters (`?discount_code=CODE`).
-- **Configuration**:
-  To connect your own live Gumroad product URL, update `DEFAULT_GUMROAD_URL` in `script.js` or define `window.LAFZI_GUMROAD_URL`:
-  ```javascript
-  window.LAFZI_GUMROAD_URL = "https://gumroad.com/l/YOUR-PRODUCT-SLUG";
-  ```
+- **Dual Versions**: Gumroad checkout modal automatically displays the Windows & macOS version selector.
 
 ---
 

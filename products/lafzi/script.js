@@ -563,7 +563,7 @@ function showToast(msg) {
 // -----------------------------------------------------------------------------
 // Gumroad Checkout & Promo Code Integration
 // -----------------------------------------------------------------------------
-const DEFAULT_GUMROAD_URL = window.LAFZI_GUMROAD_URL || "https://gumroad.com/l/lafzi-studio";
+const DEFAULT_GUMROAD_URL = window.LAFZI_GUMROAD_URL || "https://maxxed45.gumroad.com/l/lafzi";
 let activeDiscount = null;
 
 function setupCheckoutAndDiscounts() {
