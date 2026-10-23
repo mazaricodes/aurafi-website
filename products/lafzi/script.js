@@ -563,9 +563,9 @@ function showToast(msg) {
 }
 
 // -----------------------------------------------------------------------------
-// Lemon Squeezy Checkout & Promo Code with Cap Limits
+// Gumroad Checkout & Promo Code Integration
 // -----------------------------------------------------------------------------
-const DEFAULT_LEMON_SQUEEZY_URL = window.LAFZI_LEMON_SQUEEZY_URL || "https://aurafi.lemonsqueezy.com/checkout/buy/e08836bd-0ad5-4cee-a246-92df7690bf63?embed=1";
+const DEFAULT_GUMROAD_URL = window.LAFZI_GUMROAD_URL || "https://gumroad.com/l/lafzi-studio-pro";
 let activeDiscount = null;
 
 function setupCheckoutAndDiscounts() {
@@ -573,20 +573,13 @@ function setupCheckoutAndDiscounts() {
   const promoInput = document.getElementById("promoCodeInput");
   const feedback = document.getElementById("promoFeedbackMsg");
   const priceDisplay = document.getElementById("studioPriceAmount");
-  const buyBtn = document.getElementById("btnBuyLemonSqueezy");
-
-  // Initialize Lemon.js overlay if available
-  if (typeof window.createLemonSqueezy === "function") {
-    try {
-      window.createLemonSqueezy();
-    } catch (_) {}
-  }
+  const buyBtn = document.getElementById("btnBuyGumroad") || document.getElementById("btnBuyLemonSqueezy");
 
   function getActiveCheckoutUrl() {
-    let url = DEFAULT_LEMON_SQUEEZY_URL;
+    let url = DEFAULT_GUMROAD_URL;
     if (activeDiscount && activeDiscount.code) {
       const sep = url.includes("?") ? "&" : "?";
-      url += `${sep}checkout[discount_code]=${encodeURIComponent(activeDiscount.code)}`;
+      url += `${sep}discount_code=${encodeURIComponent(activeDiscount.code)}`;
     }
     return url;
   }
@@ -644,12 +637,12 @@ function setupCheckoutAndDiscounts() {
         }
       } catch (err) {
         applyBtn.textContent = "Apply";
-        // Static GitHub Pages fallback: pass discount code directly to Lemon Squeezy checkout
+        // Static hosting fallback: pass discount code directly to Gumroad checkout URL
         activeDiscount = { code: code };
         if (feedback) {
           feedback.style.display = "block";
           feedback.style.color = "var(--mint)";
-          feedback.innerHTML = `✓ Code <strong>${code}</strong> will be applied at Lemon Squeezy checkout!`;
+          feedback.innerHTML = `✓ Code <strong>${code}</strong> will be applied at Gumroad checkout!`;
         }
       }
       syncBuyButton();
@@ -663,19 +656,12 @@ function setupCheckoutAndDiscounts() {
     });
   }
 
-  // Lemon Squeezy Buy Handler (handles overlay & dynamic params)
+  // Gumroad Buy Handler (updates dynamic query params)
   if (buyBtn) {
     syncBuyButton();
-    buyBtn.addEventListener("click", (e) => {
+    buyBtn.addEventListener("click", () => {
       const checkoutUrl = getActiveCheckoutUrl();
       buyBtn.href = checkoutUrl;
-
-      // Check for LemonSqueezy JS SDK overlay modal
-      if (window.LemonSqueezy && typeof window.LemonSqueezy.Url?.Open === "function") {
-        e.preventDefault();
-        window.LemonSqueezy.Url.Open(checkoutUrl);
-      }
-      // Otherwise, the default <a> navigation to Lemon Squeezy proceeds naturally
     });
   }
 }
