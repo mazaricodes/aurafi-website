@@ -445,7 +445,7 @@ function setupPlatformDetection() {
 
 const FREE_DOWNLOADS = {
   mac: "./downloads/Lafzi-macOS-Universal.zip",
-  windows: "./downloads/Lafzi-Setup.exe",
+  windows: "https://github.com/mazaricodes/aurafi-website/releases/download/v1.0.0/Lafzi-Setup.exe",
 };
 
 function triggerDirectDownload(url, filename) {
