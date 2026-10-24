@@ -458,33 +458,36 @@
     <div class="modal-window">
       <button class="modal-close" id="modalClose">✕</button>
       <h3 style="font-size: 1.45rem; margin-bottom: 6px;" id="modalEditionTitle">Download Lafzi</h3>
-      <p style="color: var(--text-muted); font-size: 0.88rem;">
-        Select the architecture that matches your workstation. All packages run 100% locally with zero cloud dependencies.
+      <p style="color: var(--text-muted); font-size: 0.88rem;" id="modalEditionDesc">
+        100% offline, free forever, capped at 2 minutes per project. Select your workstation below to start downloading.
       </p>
 
       <div class="platform-choice-grid">
         <!-- Mac Universal (Apple Silicon + Intel) -->
-        <div class="platform-card" data-platform-name="macOS Universal">
+        <a href="./downloads/Lafzi-macOS-Universal.zip" class="platform-card" id="macDownloadCard" data-platform-name="macOS Universal" data-platform-download="mac" download>
           <div class="platform-meta">
             <h4> macOS — Universal 2</h4>
-            <span>Compatible with Apple Silicon (M1–M4) & Intel Macs • Metal GPU</span>
+            <span>Apple Silicon (M1–M4) & Intel Macs • Apple Metal GPU</span>
           </div>
-          <span class="placeholder-badge">Universal (v1.0.0)</span>
-        </div>
+          <span class="download-btn-badge">Download (1.6 MB) ↓</span>
+        </a>
 
         <!-- Windows 64-bit -->
-        <div class="platform-card" data-platform-name="Windows 10/11">
+        <a href="./downloads/Lafzi-Windows-x64.zip" class="platform-card" id="winDownloadCard" data-platform-name="Windows 10/11" data-platform-download="windows" download>
           <div class="platform-meta">
             <h4>⊞ Windows 10 / 11 (64-bit)</h4>
-            <span>Installer & Standalone ZIP • DirectML / CUDA</span>
+            <span>Standalone Package • DirectML / CUDA acceleration</span>
           </div>
-          <span class="placeholder-badge">Win-x64 (v1.0.0)</span>
-        </div>
+          <span class="download-btn-badge">Download (1.5 MB) ↓</span>
+        </a>
       </div>
 
-      <div style="background: rgba(239, 43, 45, 0.08); border: 1px solid rgba(239, 43, 45, 0.2); border-radius: var(--radius-sm); padding: 12px; font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px;">
-        <span style="color: var(--crimson-light); font-size: 1rem;">ℹ</span>
-        <span>Download links are currently set to release placeholder packages until public distribution unlocks.</span>
+      <div class="modal-instructions" id="modalInstructions" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
+        <div style="font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <span style="color: var(--mint);">✓</span> Quick Launch Guide:
+        </div>
+        <div style="margin-bottom: 5px;"><strong> macOS:</strong> Unzip and double-click <code>Lafzi.app</code>. <em>(On first run, right-click and click Open if prompted by macOS Gatekeeper).</em></div>
+        <div><strong>⊞ Windows:</strong> Unzip folder and double-click <code>start_windows.bat</code>.</div>
       </div>
     </div>
   </div>

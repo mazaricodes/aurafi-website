@@ -419,27 +419,42 @@ function startWordAnimation() {
   }, 440); // 440ms cadence represents natural energetic speech rhythm
 }
 
+let currentDetectedPlatform = "macos-universal";
+
 // Auto Detect Operating System
 function setupPlatformDetection() {
   const ua = window.navigator.userAgent.toLowerCase();
-  let detectedPlatform = "macos-universal";
-  let labelText = "Download for macOS (Universal)";
+  let labelText = "Download Lafzi for macOS (Universal)";
 
   if (ua.includes("win")) {
-    detectedPlatform = "windows-x64";
-    labelText = "Download for Windows 10 / 11 (64-bit)";
+    currentDetectedPlatform = "windows-x64";
+    labelText = "Download Lafzi for Windows 10 / 11";
   } else if (ua.includes("mac")) {
-    detectedPlatform = "macos-universal";
-    labelText = "Download for macOS (Universal)";
+    currentDetectedPlatform = "macos-universal";
+    labelText = "Download Lafzi for macOS (Universal)";
   }
 
   // Update primary CTA buttons
   const dynamicCta = document.querySelectorAll(".dynamic-platform-btn");
   dynamicCta.forEach((btn) => {
-    const icon = detectedPlatform === "windows-x64" ? "⊞" : "";
+    const icon = currentDetectedPlatform === "windows-x64" ? "⊞" : "";
     btn.innerHTML = `${icon} ${labelText}`;
-    btn.setAttribute("data-target-platform", detectedPlatform);
+    btn.setAttribute("data-target-platform", currentDetectedPlatform);
   });
+}
+
+const FREE_DOWNLOADS = {
+  mac: "./downloads/Lafzi-macOS-Universal.zip",
+  windows: "./downloads/Lafzi-Windows-x64.zip",
+};
+
+function triggerDirectDownload(url, filename) {
+  const a = document.createElement("a");
+  a.href = url;
+  if (filename) a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 // Platform Download Modal Handlers
@@ -448,62 +463,68 @@ function setupModalHandlers() {
   const modalClose = document.getElementById("modalClose");
   const triggers = document.querySelectorAll("[data-open-modal='downloadModal']");
   const modalTitle = document.getElementById("modalEditionTitle");
+  const modalDesc = document.getElementById("modalEditionDesc");
+  const macCard = document.getElementById("macDownloadCard");
+  const winCard = document.getElementById("winDownloadCard");
 
   triggers.forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      const edition = btn.getAttribute("data-edition") || "Lafzi Base";
-      if (modalTitle) {
-        modalTitle.textContent = edition === "studio" ? "Download Lafzi Studio" : "Download Lafzi";
+      const edition = btn.getAttribute("data-edition") || "free";
+      const isDynamicHero = btn.classList.contains("dynamic-platform-btn");
+
+      if (edition === "studio") {
+        if (modalTitle) modalTitle.textContent = "Download Lafzi Studio";
+        if (modalDesc) {
+          modalDesc.innerHTML = `Lafzi Studio packages and lifetime license keys are delivered on Gumroad. <a href="${DEFAULT_GUMROAD_URL}" class="gumroad-button" style="color:var(--crimson-light);text-decoration:underline;">Click here to purchase on Gumroad ($10 / Rs 2,950)</a>.`;
+        }
+        if (macCard) macCard.href = DEFAULT_GUMROAD_URL;
+        if (winCard) winCard.href = DEFAULT_GUMROAD_URL;
+      } else {
+        if (modalTitle) modalTitle.textContent = "Download Lafzi";
+        if (modalDesc) {
+          modalDesc.textContent = "100% offline, free forever, capped at 2 minutes per project. Select your workstation below to start downloading.";
+        }
+        if (macCard) macCard.href = FREE_DOWNLOADS.mac;
+        if (winCard) winCard.href = FREE_DOWNLOADS.windows;
+
+        // If hero download button clicked, trigger immediate download for detected OS!
+        if (isDynamicHero) {
+          const isWin = currentDetectedPlatform === "windows-x64";
+          const fileUrl = isWin ? FREE_DOWNLOADS.windows : FREE_DOWNLOADS.mac;
+          const fileName = isWin ? "Lafzi-Windows-x64.zip" : "Lafzi-macOS-Universal.zip";
+          triggerDirectDownload(fileUrl, fileName);
+          showToast(`✓ Starting Lafzi download for ${isWin ? "Windows" : "macOS"}...`);
+        }
       }
+
       if (modal) modal.classList.add("active");
     });
   });
 
   if (modalClose && modal) {
-    modalClose.addEventListener("click", () => {
-      modal.classList.remove("active");
-    });
-
+    modalClose.addEventListener("click", () => modal.classList.remove("active"));
     modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        modal.classList.remove("active");
-      }
+      if (e.target === modal) modal.classList.remove("active");
     });
   }
 
-  // Handle Placeholder Download Click with realistic feedback & track downloads
+  // Handle direct download clicks on cards
   const platformCards = document.querySelectorAll(".platform-card");
   platformCards.forEach((card) => {
     card.addEventListener("click", () => {
       const platformName = card.getAttribute("data-platform-name") || "Package";
-      const statusSpan = card.querySelector(".placeholder-badge");
-
-      // Track platform download to Admin analytics
       const pLower = platformName.toLowerCase();
       const osKey = pLower.includes("mac") ? "macos_universal" : "windows_x64";
+
+      // Track platform download
       fetch("/api/downloads/track", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ platform: osKey }),
       }).catch(() => {});
 
-      if (statusSpan) {
-        const originalText = statusSpan.textContent;
-        statusSpan.textContent = "Packaging...";
-        statusSpan.style.borderColor = "var(--crimson)";
-        statusSpan.style.color = "var(--crimson-light)";
-
-        setTimeout(() => {
-          statusSpan.textContent = "Build Ready";
-          showToast(`v1.0.0 installer placeholder selected for ${platformName}`);
-          setTimeout(() => {
-            statusSpan.textContent = originalText;
-            statusSpan.style.borderColor = "";
-            statusSpan.style.color = "";
-          }, 2400);
-        }, 800);
-      }
+      showToast(`✓ Starting download for ${platformName}...`);
     });
   });
 }
