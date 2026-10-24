@@ -445,7 +445,7 @@ function setupPlatformDetection() {
 
 const FREE_DOWNLOADS = {
   mac: "./downloads/Lafzi-macOS-Universal.zip",
-  windows: "./downloads/Lafzi-Windows-x64.zip",
+  windows: "./downloads/Lafzi-Setup.exe",
 };
 
 function triggerDirectDownload(url, filename) {
@@ -492,7 +492,7 @@ function setupModalHandlers() {
         if (isDynamicHero) {
           const isWin = currentDetectedPlatform === "windows-x64";
           const fileUrl = isWin ? FREE_DOWNLOADS.windows : FREE_DOWNLOADS.mac;
-          const fileName = isWin ? "Lafzi-Windows-x64.zip" : "Lafzi-macOS-Universal.zip";
+          const fileName = isWin ? "Lafzi-Setup.exe" : "Lafzi-macOS-Universal.zip";
           triggerDirectDownload(fileUrl, fileName);
           showToast(`✓ Starting Lafzi download for ${isWin ? "Windows" : "macOS"}...`);
         }
