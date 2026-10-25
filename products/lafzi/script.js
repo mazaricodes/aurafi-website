@@ -443,9 +443,9 @@ function setupPlatformDetection() {
 }
 
 const FREE_DOWNLOADS = {
-  mac: "https://drive.google.com/file/d/1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_/view?usp=share_link",
-  mac_intel: "https://drive.google.com/file/d/1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_/view?usp=share_link",
-  windows: "https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=share_link",
+  mac: "https://drive.usercontent.google.com/download?id=1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_&export=download&confirm=t",
+  mac_intel: "https://drive.usercontent.google.com/download?id=1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_&export=download&confirm=t",
+  windows: "https://drive.usercontent.google.com/download?id=1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ&export=download&confirm=t",
 };
 
 function triggerDirectDownload(url, filename) {
