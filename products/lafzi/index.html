@@ -72,88 +72,21 @@
           The offline AI video captioning studio engineered for South Asian creators. Transcribe 18 regional languages with native scripts, seamless Roman transliteration, and 24 viral creator styles.
         </p>
 
-        <!-- Direct 3-Platform Download Options (No Single Hero CTA) -->
-        <div class="hero-download-options" id="download">
-          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span style="color: var(--mint);">●</span> Select Your Workstation to Download Free (2-Min Cap):
-          </div>
-          
-          <div class="hero-platform-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; max-width: 960px; margin: 0 auto 20px;">
-            <!-- Option 1: macOS Apple Silicon -->
-            <a href="https://drive.usercontent.google.com/download?id=1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_&export=download&confirm=t" class="hero-platform-card" id="heroMacSiliconCard">
-              <div class="hpc-icon"></div>
-              <div class="hpc-info">
-                <div class="hpc-title">macOS Apple Silicon</div>
-                <div class="hpc-sub">M1, M2, M3, M4 • Metal GPU</div>
-              </div>
-              <span class="hpc-badge">Direct Download .dmg ↗</span>
-            </a>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg btn-glow" data-open-modal="downloadModal" data-edition="free">
+             Download Lafzi Free
+          </button>
+          <a href="#editions" class="btn btn-secondary btn-lg">
+            Compare Lafzi & Lafzi Studio
+          </a>
+        </div>
 
-            <!-- Option 2: macOS Intel -->
-            <a href="https://drive.usercontent.google.com/download?id=1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_&export=download&confirm=t" class="hero-platform-card" id="heroMacIntelCard">
-              <div class="hpc-icon"></div>
-              <div class="hpc-info">
-                <div class="hpc-title">macOS Intel x86_64</div>
-                <div class="hpc-sub">Core i5, i7, i9 • AVX2 Vector</div>
-              </div>
-              <span class="hpc-badge">Direct Download .dmg ↗</span>
-            </a>
-
-            <!-- Option 3: Windows 10 / 11 -->
-            <a href="https://drive.usercontent.google.com/download?id=1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ&export=download&confirm=t" class="hero-platform-card" id="heroWindowsCard">
-              <div class="hpc-icon">⊞</div>
-              <div class="hpc-info">
-                <div class="hpc-title">Windows 10 / 11</div>
-                <div class="hpc-sub">64-bit • DirectML GPU Installer</div>
-              </div>
-              <span class="hpc-badge">Direct Download .exe ↗</span>
-            </a>
-          </div>
-
-          <!-- macOS Gatekeeper 'Open Anyway' Helper Box -->
-          <div class="mac-gatekeeper-guide" style="max-width: 960px; margin: 0 auto 20px; background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 18px 22px; text-align: left; backdrop-filter: blur(12px);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
-              <span style="font-weight: 700; color: #fff; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 1.05rem;"></span> macOS First Launch: How to allow "Open Anyway"
-              </span>
-              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mint); background: rgba(0, 255, 178, 0.1); border: 1px solid rgba(0, 255, 178, 0.25); padding: 2px 8px; border-radius: 4px;">
-                1-Time Setup
-              </span>
-            </div>
-            
-            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
-              Because Lafzi is distributed directly (outside the Mac App Store), Apple Gatekeeper may show: <em>"Lafzi.app cannot be opened because Apple cannot check it for malicious software"</em>. To allow it:
-            </p>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.55;">
-              <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px 14px;">
-                <strong style="color: #fff; display: block; margin-bottom: 6px; font-size: 0.82rem;">Method 1 (System Settings):</strong>
-                1. Open <strong>System Settings</strong> (from Apple  menu).<br>
-                2. Click <strong>Privacy & Security</strong> in the left sidebar.<br>
-                3. Scroll down to the <strong>Security</strong> section.<br>
-                4. Next to <em>"Lafzi.app was blocked from use..."</em>, click <strong>"Open Anyway"</strong>.<br>
-                5. Enter your Mac password or Touch ID and click <strong>Open</strong>.
-              </div>
-
-              <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px 14px;">
-                <strong style="color: #fff; display: block; margin-bottom: 6px; font-size: 0.82rem;">Method 2 (Finder Shortcut):</strong>
-                1. Drag <code>Lafzi.app</code> into your <strong>Applications</strong> folder.<br>
-                2. <strong>Right-Click (or Control-Click)</strong> <code>Lafzi.app</code>.<br>
-                3. Click <strong>Open</strong> from the pop-up context menu.<br>
-                4. In the verification prompt, click <strong>Open</strong>.<br>
-                <em>(This grants permanent permission for future clicks!)</em>
-              </div>
-            </div>
-            <div style="margin-top: 10px; font-size: 0.74rem; color: var(--text-dim); text-align: right;">
-              ✓ You only need to confirm this once. All future launches start instantly and 100% offline.
-            </div>
-          </div>
-
-          <div style="text-align: center; margin-bottom: 18px;">
-            <a href="#editions" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; padding: 8px 18px;">
-              View Features & Upgrade to Studio ($10 Lifetime) ↓
-            </a>
-          </div>
+        <div class="hero-platform-tag">
+          <span> macOS (Apple Silicon & Intel)</span>
+          <span>•</span>
+          <span>⊞ Windows 10 / 11 (64-bit)</span>
+          <span>•</span>
+          <span>⚡ 100% Offline & Private</span>
         </div>
 
         <div class="hero-social-proof">
