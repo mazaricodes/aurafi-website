@@ -35,11 +35,42 @@ function setupTabs() {
   });
 }
 
-// Load Metrics from Backend
+function getAdminPin() {
+  return localStorage.getItem("lafzi_admin_pin") || "lafzi2025";
+}
+
+function getRegistryBaseUrl() {
+  const custom = localStorage.getItem("lafzi_cloud_registry_url");
+  if (custom) return custom.replace(/\/$/, "");
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return window.location.port === "8000" ? "" : "http://localhost:3002";
+  }
+  return "https://lafzi-cloud-registry.vercel.app";
+}
+
+function configureCloudRegistry() {
+  const currentUrl = localStorage.getItem("lafzi_cloud_registry_url") || "https://lafzi-cloud-registry.vercel.app";
+  const newUrl = prompt("Enter your Vercel Cloud Registry URL:", currentUrl);
+  if (newUrl !== null) {
+    localStorage.setItem("lafzi_cloud_registry_url", newUrl.trim());
+    const currentPin = getAdminPin();
+    const newPin = prompt("Enter your Admin PIN (default: lafzi2025):", currentPin);
+    if (newPin !== null) {
+      localStorage.setItem("lafzi_admin_pin", newPin.trim());
+    }
+    showAdminToast(`✓ Cloud Registry configured: ${newUrl.trim()}`);
+    loadAdminMetrics();
+  }
+}
+
+// Load Metrics from Backend or Cloud Registry
 async function loadAdminMetrics() {
+  const base = getRegistryBaseUrl();
+  const pin = getAdminPin();
+  const url = base ? `${base}/api/admin/metrics?admin_pin=${encodeURIComponent(pin)}` : `/api/admin/metrics?admin_pin=${encodeURIComponent(pin)}`;
   try {
-    const res = await fetch("/api/admin/metrics");
-    if (!res.ok) throw new Error("Failed to load metrics");
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to load metrics from " + url);
     const data = await res.json();
     currentData = data;
     renderMetrics(data);
@@ -50,7 +81,27 @@ async function loadAdminMetrics() {
     renderAlertManifest(data.alert || {});
     renderDownloadsBreakdown(data.downloads || {});
   } catch (err) {
-    console.error("Metrics load error:", err);
+    console.warn("Cloud metrics load error:", err);
+    if (base !== "") {
+      try {
+        const localRes = await fetch("/api/admin/metrics");
+        if (localRes.ok) {
+          const localData = await localRes.json();
+          currentData = localData;
+          renderMetrics(localData);
+          renderRecentOrders(localData.recent_orders || []);
+          renderLicenseRegistry(localData.recent_licenses || []);
+          renderDiscountsTable(localData.discounts || []);
+          renderUpdateManifest(localData.updates || {});
+          renderAlertManifest(localData.alert || {});
+          renderDownloadsBreakdown(localData.downloads || {});
+          return;
+        }
+      } catch (localErr) {
+        // ignore
+      }
+    }
+    showAdminToast("⚠️ Tip: Click '☁️ Cloud Registry' above to connect your Vercel URL");
   }
 }
 
@@ -226,8 +277,14 @@ function filterAndRenderLicenses() {
 
 async function unbindKey(key) {
   if (!confirm(`Release hardware binding for license key:\n${key}\n\nThis will allow the customer to activate Lafzi Studio on a new computer.`)) return;
+  const base = getRegistryBaseUrl();
+  const pin = getAdminPin();
   try {
-    const res = await fetch(`/api/admin/licenses/${encodeURIComponent(key)}/unbind`, { method: "POST" });
+    const res = await fetch(`${base}/api/license/unbind`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, admin_pin: pin }),
+    });
     const data = await res.json();
     if (data.ok) {
       showAdminToast(`✓ Hardware binding released for ${key}`);
@@ -549,9 +606,21 @@ async function deleteDiscount(code) {
 // Revoke or Reinstate License Key
 async function revokeKey(key, revoke) {
   if (revoke && !confirm(`Revoke license key ${key}? This will immediately lock the user's Studio export.`)) return;
+  const base = getRegistryBaseUrl();
+  const pin = getAdminPin();
   try {
-    await fetch(`/api/admin/licenses/${encodeURIComponent(key)}/revoke`, { method: "POST" });
-    loadAdminMetrics();
+    const res = await fetch(`${base}/api/license/revoke`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, admin_pin: pin, reason: revoke ? "Revoked via Admin Portal" : "" }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showAdminToast(`✓ License ${key} updated.`);
+      loadAdminMetrics();
+    } else {
+      alert("Revoke failed: " + (data.error || "Unknown error"));
+    }
   } catch (err) {
     alert("Error: " + err.message);
   }
