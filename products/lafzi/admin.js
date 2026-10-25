@@ -12,9 +12,60 @@ let currentData = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   setupTabs();
-  loadAdminMetrics();
   setupForms();
+
+  const gate = document.getElementById("adminAuthGate");
+  if (gate) {
+    const authed = sessionStorage.getItem("lafzi_admin_authed") === "true";
+    if (authed) {
+      gate.style.display = "none";
+      loadAdminMetrics();
+    } else {
+      gate.style.display = "flex";
+      const pinInput = document.getElementById("gatePinInput");
+      if (pinInput) setTimeout(() => pinInput.focus(), 100);
+    }
+  } else {
+    loadAdminMetrics();
+  }
 });
+
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+  const pinInput = document.getElementById("gatePinInput");
+  const errElem = document.getElementById("gateError");
+  const pin = (pinInput?.value || "").trim();
+
+  if (!pin) {
+    if (errElem) { errElem.textContent = "PIN cannot be empty."; errElem.style.display = "block"; }
+    return;
+  }
+
+  const base = getRegistryBaseUrl();
+  const url = `${base}/api/admin/metrics?admin_pin=${encodeURIComponent(pin)}`;
+
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      localStorage.setItem("lafzi_admin_pin", pin);
+      sessionStorage.setItem("lafzi_admin_authed", "true");
+      const gate = document.getElementById("adminAuthGate");
+      if (gate) gate.style.display = "none";
+      loadAdminMetrics();
+    } else {
+      if (errElem) { errElem.textContent = "Invalid Admin PIN. Access denied."; errElem.style.display = "block"; }
+    }
+  } catch (err) {
+    if (pin === getAdminPin()) {
+      sessionStorage.setItem("lafzi_admin_authed", "true");
+      const gate = document.getElementById("adminAuthGate");
+      if (gate) gate.style.display = "none";
+      loadAdminMetrics();
+    } else {
+      if (errElem) { errElem.textContent = "Authentication failed: " + err.message; errElem.style.display = "block"; }
+    }
+  }
+}
 
 // Setup Navigation Tabs
 function setupTabs() {
