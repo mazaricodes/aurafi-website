@@ -220,6 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupModalHandlers();
   setupFaqAccordion();
   setupCheckoutAndDiscounts();
+  setupLocalCurrency();
   startWordAnimation();
 });
 
@@ -424,37 +425,31 @@ let currentDetectedPlatform = "macos-universal";
 // Auto Detect Operating System
 function setupPlatformDetection() {
   const ua = window.navigator.userAgent.toLowerCase();
-  let labelText = "Download Lafzi for macOS (Universal)";
 
   if (ua.includes("win")) {
     currentDetectedPlatform = "windows-x64";
-    labelText = "Download Lafzi for Windows 10 / 11";
   } else if (ua.includes("mac")) {
     currentDetectedPlatform = "macos-universal";
-    labelText = "Download Lafzi for macOS (Universal)";
   }
 
-  // Update primary CTA buttons
-  const dynamicCta = document.querySelectorAll(".dynamic-platform-btn");
-  dynamicCta.forEach((btn) => {
-    const icon = currentDetectedPlatform === "windows-x64" ? "⊞" : "";
-    btn.innerHTML = `${icon} ${labelText}`;
-    btn.setAttribute("data-target-platform", currentDetectedPlatform);
-  });
+  // Subtly highlight matching hero platform card
+  if (currentDetectedPlatform === "windows-x64") {
+    const winHero = document.getElementById("heroWindowsCard");
+    if (winHero) winHero.style.borderColor = "var(--mint)";
+  } else if (currentDetectedPlatform === "macos-universal") {
+    const macHero = document.getElementById("heroMacSiliconCard");
+    if (macHero) macHero.style.borderColor = "var(--mint)";
+  }
 }
 
 const FREE_DOWNLOADS = {
-  mac: "./downloads/Lafzi-macOS-Universal.zip",
-  windows: "https://github.com/mazaricodes/aurafi-website/releases/download/v1.0.0/Lafzi-Setup.exe",
+  mac: "https://drive.google.com/file/d/1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_/view?usp=share_link",
+  mac_intel: "https://drive.google.com/file/d/1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_/view?usp=share_link",
+  windows: "https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=share_link",
 };
 
 function triggerDirectDownload(url, filename) {
-  const a = document.createElement("a");
-  a.href = url;
-  if (filename) a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  window.open(url, "_blank");
 }
 
 // Platform Download Modal Handlers
@@ -465,36 +460,32 @@ function setupModalHandlers() {
   const modalTitle = document.getElementById("modalEditionTitle");
   const modalDesc = document.getElementById("modalEditionDesc");
   const macCard = document.getElementById("macDownloadCard");
+  const macIntelCard = document.getElementById("macIntelDownloadCard");
   const winCard = document.getElementById("winDownloadCard");
 
   triggers.forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       const edition = btn.getAttribute("data-edition") || "free";
-      const isDynamicHero = btn.classList.contains("dynamic-platform-btn");
+
+      if (macCard) macCard.href = FREE_DOWNLOADS.mac;
+      if (macIntelCard) macIntelCard.href = FREE_DOWNLOADS.mac_intel;
+      if (winCard) winCard.href = FREE_DOWNLOADS.windows;
 
       if (edition === "studio") {
-        if (modalTitle) modalTitle.textContent = "Download Lafzi Studio";
+        if (modalTitle) modalTitle.textContent = "Download Lafzi & Activate Studio";
         if (modalDesc) {
-          modalDesc.innerHTML = `Lafzi Studio packages and lifetime license keys are delivered on Gumroad. <a href="${DEFAULT_GUMROAD_URL}" class="gumroad-button" style="color:var(--crimson-light);text-decoration:underline;">Click here to purchase on Gumroad ($10 / Rs 2,950)</a>.`;
+          modalDesc.innerHTML = `
+            <strong>Step 1:</strong> Purchase your lifetime license key on <a href="${DEFAULT_GUMROAD_URL}" target="_blank" class="gumroad-button" style="color:var(--crimson-light);font-weight:700;text-decoration:underline;">Gumroad ($10 USD)</a>.<br>
+            <strong>Step 2:</strong> Download the Lafzi installer below for your machine.<br>
+            <strong>Step 3:</strong> In Lafzi, click <em>"⭐ Upgrade to Studio" → "Enter License Key"</em> to unlock all features!
+          `;
         }
-        if (macCard) macCard.href = DEFAULT_GUMROAD_URL;
-        if (winCard) winCard.href = DEFAULT_GUMROAD_URL;
       } else {
         if (modalTitle) modalTitle.textContent = "Download Lafzi";
         if (modalDesc) {
-          modalDesc.textContent = "100% offline, free forever, capped at 2 minutes per project. Select your workstation below to start downloading.";
-        }
-        if (macCard) macCard.href = FREE_DOWNLOADS.mac;
-        if (winCard) winCard.href = FREE_DOWNLOADS.windows;
-
-        // If hero download button clicked, trigger immediate download for detected OS!
-        if (isDynamicHero) {
-          const isWin = currentDetectedPlatform === "windows-x64";
-          const fileUrl = isWin ? FREE_DOWNLOADS.windows : FREE_DOWNLOADS.mac;
-          const fileName = isWin ? "Lafzi-Setup.exe" : "Lafzi-macOS-Universal.zip";
-          triggerDirectDownload(fileUrl, fileName);
-          showToast(`✓ Starting Lafzi download for ${isWin ? "Windows" : "macOS"}...`);
+          modalDesc.textContent =
+            "100% offline, free forever, capped at 2 minutes per project. Select your workstation below to download from Google Drive.";
         }
       }
 
@@ -626,7 +617,7 @@ function setupCheckoutAndDiscounts() {
         const res = await fetch("/api/discounts/validate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code, base_price: 2950.0 }),
+          body: JSON.stringify({ code, base_price: 10.0 }),
         });
         
         if (!res.ok) throw new Error("API unavailable");
@@ -638,11 +629,13 @@ function setupCheckoutAndDiscounts() {
           if (feedback) {
             feedback.style.display = "block";
             feedback.style.color = "var(--mint)";
-            feedback.innerHTML = `✓ <strong>${data.code} applied!</strong> You save ${data.currency_symbol} ${data.discount_amount.toLocaleString()} (${data.remaining_uses} uses remaining)`;
+            const sym = data.currency_symbol || "$";
+            feedback.innerHTML = `✓ <strong>${data.code} applied!</strong> You save ${sym}${data.discount_amount} (${data.remaining_uses} uses remaining)`;
           }
           if (priceDisplay) {
-            priceDisplay.innerHTML = `<span style="text-decoration: line-through; opacity: 0.45; font-size: 1.45rem; margin-right: 8px;">Rs 2,950</span> Rs ${Math.round(data.final_price).toLocaleString()}`;
+            priceDisplay.innerHTML = `<span style="text-decoration: line-through; opacity: 0.45; font-size: 1.45rem; margin-right: 8px;">$10</span> $${Math.round(data.final_price)}`;
           }
+          updateLocalEstimate(data.final_price);
         } else {
           activeDiscount = null;
           if (feedback) {
@@ -651,8 +644,9 @@ function setupCheckoutAndDiscounts() {
             feedback.textContent = `⚠️ ${data.error || "Invalid promo code"}`;
           }
           if (priceDisplay) {
-            priceDisplay.textContent = "Rs 2,950";
+            priceDisplay.textContent = "$10";
           }
+          updateLocalEstimate(10);
         }
       } catch (err) {
         applyBtn.textContent = "Apply";
@@ -684,4 +678,92 @@ function setupCheckoutAndDiscounts() {
     });
   }
 }
+
+// -----------------------------------------------------------------------------
+// Dynamic Local Currency Converter (Based on Viewer Location)
+// -----------------------------------------------------------------------------
+let cachedRate = null;
+let cachedCurrency = "USD";
+let cachedSymbol = "$";
+
+function updateLocalEstimate(usdAmount) {
+  const estimateEl = document.getElementById("localCurrencyEstimate");
+  if (!estimateEl || !cachedRate || cachedCurrency === "USD") return;
+  const localVal = Math.round(usdAmount * cachedRate);
+  estimateEl.style.display = "block";
+  estimateEl.innerHTML = `≈ ${cachedSymbol} ${localVal.toLocaleString()} ${cachedCurrency} <span style="font-size:0.75rem;opacity:0.75;font-weight:400;">(billed as $${usdAmount} on Gumroad)</span>`;
+}
+
+async function setupLocalCurrency() {
+  const estimateEl = document.getElementById("localCurrencyEstimate");
+  if (!estimateEl) return;
+
+  const CURRENCY_SYMBOLS = {
+    PKR: "Rs",
+    INR: "₹",
+    BDT: "৳",
+    AED: "AED",
+    SAR: "SAR",
+    EUR: "€",
+    GBP: "£",
+    CAD: "CA$",
+    AUD: "A$",
+    TRY: "₺",
+    USD: "$"
+  };
+
+  try {
+    // 1. Detect visitor location & currency
+    let userCurrency = "USD";
+    try {
+      const geoRes = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3000) });
+      if (geoRes.ok) {
+        const geoData = await geoRes.json();
+        if (geoData && geoData.currency) {
+          userCurrency = geoData.currency.toUpperCase();
+        }
+      }
+    } catch (e) {
+      // Fallback detection from browser timezone
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+      if (tz.includes("Karachi")) userCurrency = "PKR";
+      else if (tz.includes("Kolkata") || tz.includes("Calcutta")) userCurrency = "INR";
+      else if (tz.includes("Dhaka")) userCurrency = "BDT";
+      else if (tz.includes("Dubai")) userCurrency = "AED";
+      else if (tz.includes("Riyadh")) userCurrency = "SAR";
+      else if (tz.includes("London")) userCurrency = "GBP";
+    }
+
+    if (userCurrency === "USD") {
+      return;
+    }
+
+    cachedCurrency = userCurrency;
+    cachedSymbol = CURRENCY_SYMBOLS[userCurrency] || userCurrency;
+
+    // 2. Fetch live exchange rate from open exchange API
+    let rate = null;
+    try {
+      const rateRes = await fetch("https://open.er-api.com/v6/latest/USD", { signal: AbortSignal.timeout(3000) });
+      if (rateRes.ok) {
+        const rateData = await rateRes.json();
+        if (rateData && rateData.rates && rateData.rates[userCurrency]) {
+          rate = rateData.rates[userCurrency];
+        }
+      }
+    } catch (e) {
+      // Fallback static benchmarks for common regions if offline / adblocked
+      const fallbackRates = { PKR: 278, INR: 86.8, BDT: 118, AED: 3.67, SAR: 3.75, EUR: 0.92, GBP: 0.77, CAD: 1.38, AUD: 1.52 };
+      rate = fallbackRates[userCurrency];
+    }
+
+    if (rate && rate > 0) {
+      cachedRate = rate;
+      updateLocalEstimate(10);
+    }
+  } catch (err) {
+    console.debug("Local currency conversion skipped:", err);
+  }
+}
+
 

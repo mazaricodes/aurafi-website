@@ -5,7 +5,7 @@
  * - Software update publishing and remote manifest management
  * - License key generation, search, and revocation
  * - Discount code creation with cap limits and active toggling
- * - Lemon Squeezy order fulfillment and test simulator
+ * - Gumroad order fulfillment and test simulator
  */
 
 let currentData = null;
@@ -47,6 +47,7 @@ async function loadAdminMetrics() {
     renderLicenseRegistry(data.recent_licenses || []);
     renderDiscountsTable(data.discounts || []);
     renderUpdateManifest(data.updates || {});
+    renderAlertManifest(data.alert || {});
     renderDownloadsBreakdown(data.downloads || {});
   } catch (err) {
     console.error("Metrics load error:", err);
@@ -66,7 +67,7 @@ function renderMetrics(data) {
   const revElem = document.getElementById("metricRevenue");
   if (revElem) revElem.textContent = `${symbol} ${Math.round(rev.total || 0).toLocaleString()}`;
   const revSub = document.getElementById("metricRevenueSub");
-  if (revSub) revSub.textContent = `${rev.order_count || 0} completed orders (${symbol} ${rev.base_price || 2950} base)`;
+  if (revSub) revSub.textContent = `${rev.order_count || 0} completed orders (${symbol} ${rev.base_price || 10} base)`;
 
   // Card 2: Active Installs
   const userElem = document.getElementById("metricInstalls");
@@ -133,42 +134,112 @@ function renderRecentOrders(orders) {
   `).join("");
 }
 
-// Render License Registry Table
+// License Registry State & Filtering
+let allLicensesCache = [];
+let currentLicFilter = "all";
+let currentLicSearch = "";
+
 function renderLicenseRegistry(licenses) {
+  allLicensesCache = Array.isArray(licenses) ? licenses : [];
+  updateLicenseCounts();
+  filterAndRenderLicenses();
+}
+
+function updateLicenseCounts() {
+  const all = allLicensesCache.length;
+  const active = allLicensesCache.filter((l) => l.status === "active" && l.hwid_bound).length;
+  const unused = allLicensesCache.filter((l) => l.status === "unused").length;
+  const revoked = allLicensesCache.filter((l) => l.status === "revoked").length;
+
+  const setT = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+  setT("licCountAll", all);
+  setT("licCountActive", active);
+  setT("licCountUnused", unused);
+  setT("licCountRevoked", revoked);
+}
+
+function filterAndRenderLicenses() {
   const tbody = document.getElementById("licenseTableBody");
   if (!tbody) return;
 
-  if (licenses.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-dim); padding: 24px;">No licenses issued yet. Click "Generate Keys" above.</td></tr>`;
+  const query = currentLicSearch.trim().toLowerCase();
+  const filtered = allLicensesCache.filter((l) => {
+    // 1. Status Filter
+    if (currentLicFilter === "active" && !(l.status === "active" && l.hwid_bound)) return false;
+    if (currentLicFilter === "unused" && l.status !== "unused") return false;
+    if (currentLicFilter === "revoked" && l.status !== "revoked") return false;
+
+    // 2. Search query filter
+    if (query) {
+      const matchKey = (l.key || "").toLowerCase().includes(query);
+      const matchEmail = (l.email || "").toLowerCase().includes(query);
+      const matchHwid = (l.hwid_bound || "").toLowerCase().includes(query);
+      const matchNote = (l.note || "").toLowerCase().includes(query);
+      return matchKey || matchEmail || matchHwid || matchNote;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 24px;">No matching license keys found.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = licenses.map((l) => {
+  tbody.innerHTML = filtered.map((l) => {
     const isRevoked = l.status === "revoked";
-    const isActive = l.status === "active";
+    const isActive = l.status === "active" && l.hwid_bound;
     const badgeClass = isRevoked ? "badge-revoked" : (isActive ? "badge-active" : "badge-warning");
-    const label = isRevoked ? "Revoked" : (isActive ? "Bound to HWID" : "Unused");
+    const label = isRevoked ? "Revoked" : (isActive ? "🟢 Active (Bound)" : "🟡 Unused");
+    const dateStr = l.activated_at
+      ? new Date(l.activated_at * 1000).toLocaleDateString()
+      : (l.created_at ? new Date(l.created_at * 1000).toLocaleDateString() : "—");
+    const platformStr = l.platform || (l.provider === "gumroad" ? "Gumroad" : "—");
 
     return `
       <tr>
         <td>
           <code style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: #fff;">${l.key}</code>
-          <button class="btn btn-sm btn-secondary" style="margin-left: 6px; padding: 2px 6px;" onclick="copyText('${l.key}')">📋</button>
+          <button class="btn btn-sm btn-secondary" style="margin-left: 6px; padding: 2px 6px;" onclick="copyText('${l.key}')" title="Copy Key">📋</button>
         </td>
-        <td>${l.email || '<span style="color: var(--text-dim);">Unassigned</span>'}</td>
+        <td>${l.email ? `<strong style="color: #fff;">${l.email}</strong>` : '<span style="color: var(--text-dim);">Unassigned</span>'}</td>
         <td><span class="badge ${badgeClass}">${label}</span></td>
-        <td><span style="font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-dim);">${l.hwid_bound || "—"}</span></td>
-        <td>${new Date(l.created_at * 1000).toLocaleDateString()}</td>
-        <td>
-          ${isRevoked 
-            ? `<button class="btn btn-sm btn-secondary" onclick="revokeKey('${l.key}', false)">Reinstate</button>`
-            : `<button class="btn btn-sm btn-danger" onclick="revokeKey('${l.key}', true)">Revoke</button>`
-          }
+        <td><span style="font-family: var(--font-mono); font-size: 0.78rem; color: ${isActive ? 'var(--mint)' : 'var(--text-dim)'};">${l.hwid_bound || "—"}</span></td>
+        <td><span style="font-size: 0.78rem; color: var(--text-muted);">${platformStr}</span></td>
+        <td>${dateStr}</td>
+        <td style="white-space: nowrap;">
+          ${isActive ? `
+            <button class="btn btn-sm btn-secondary" style="margin-right: 4px;" onclick="unbindKey('${l.key}')" title="Reset hardware binding so customer can activate on a new machine">🔄 Unbind</button>
+            <button class="btn btn-sm btn-danger" onclick="revokeKey('${l.key}', true)">Revoke</button>
+          ` : isRevoked ? `
+            <button class="btn btn-sm btn-secondary" onclick="revokeKey('${l.key}', false)">Reinstate</button>
+          ` : `
+            <button class="btn btn-sm btn-danger" onclick="revokeKey('${l.key}', true)">Revoke</button>
+          `}
         </td>
       </tr>
     `;
   }).join("");
 }
+
+async function unbindKey(key) {
+  if (!confirm(`Release hardware binding for license key:\n${key}\n\nThis will allow the customer to activate Lafzi Studio on a new computer.`)) return;
+  try {
+    const res = await fetch(`/api/admin/licenses/${encodeURIComponent(key)}/unbind`, { method: "POST" });
+    const data = await res.json();
+    if (data.ok) {
+      showAdminToast(`✓ Hardware binding released for ${key}`);
+      loadAdminMetrics();
+    } else {
+      alert("Unbind failed: " + (data.error || "Unknown error"));
+    }
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
 
 // Render Discount Codes Table with Cap Limits
 function renderDiscountsTable(discounts) {
@@ -229,13 +300,116 @@ function renderUpdateManifest(upd) {
   if (notesInput && !notesInput.value) notesInput.value = upd.release_notes || "";
 
   const dl = upd.downloads || {};
-  if (document.getElementById("updateDlSilicon")) document.getElementById("updateDlSilicon").value = dl.macos_arm64 || "";
-  if (document.getElementById("updateDlIntel")) document.getElementById("updateDlIntel").value = dl.macos_x86_64 || "";
-  if (document.getElementById("updateDlWindows")) document.getElementById("updateDlWindows").value = dl.windows_x64 || "";
+  if (document.getElementById("updateDlSilicon"))
+    document.getElementById("updateDlSilicon").value =
+      dl.macos_arm64 || "https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing";
+  if (document.getElementById("updateDlIntel"))
+    document.getElementById("updateDlIntel").value =
+      dl.macos_x86_64 || "https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing";
+  if (document.getElementById("updateDlWindows"))
+    document.getElementById("updateDlWindows").value =
+      dl.windows_x64 || "https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing";
+}
+
+// Render In-App Alert Broadcast Form & Badge
+function renderAlertManifest(alert) {
+  const badge = document.getElementById("alertActiveBadge");
+  const isActive = Boolean(alert && alert.active && alert.title);
+  if (badge) {
+    if (isActive) {
+      badge.className = "badge badge-active";
+      badge.textContent = `🟢 Active (${alert.type ? alert.type.toUpperCase() : "INFO"})`;
+    } else {
+      badge.className = "badge";
+      badge.textContent = "No Active Alert";
+    }
+  }
+
+  const titleInput = document.getElementById("alertTitleInput");
+  const msgInput = document.getElementById("alertMessageInput");
+  const typeSelect = document.getElementById("alertTypeSelect");
+  const labelInput = document.getElementById("alertActionLabel");
+  const urlInput = document.getElementById("alertActionUrl");
+  const checkActive = document.getElementById("alertActiveCheck");
+
+  if (titleInput && !titleInput.value) titleInput.value = alert.title || "";
+  if (msgInput && !msgInput.value) msgInput.value = alert.message || "";
+  if (typeSelect && alert.type) typeSelect.value = alert.type;
+  if (labelInput && !labelInput.value) labelInput.value = alert.action_label || "";
+  if (urlInput && !urlInput.value) urlInput.value = alert.action_url || "";
+  if (checkActive) checkActive.checked = isActive;
 }
 
 // Setup Form Submission Handlers
 function setupForms() {
+  // License Search & Filter Buttons
+  const licSearch = document.getElementById("licenseSearchInput");
+  if (licSearch) {
+    licSearch.addEventListener("input", (e) => {
+      currentLicSearch = e.target.value;
+      filterAndRenderLicenses();
+    });
+  }
+
+  const filterBtns = document.querySelectorAll(".filter-lic-btn");
+  filterBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentLicFilter = btn.getAttribute("data-filter") || "all";
+      filterAndRenderLicenses();
+    });
+  });
+
+  // In-App Alert Broadcast Form
+  const alertForm = document.getElementById("publishAlertForm");
+  if (alertForm) {
+    alertForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("alertTitleInput").value.trim();
+      const message = document.getElementById("alertMessageInput").value.trim();
+      const type = document.getElementById("alertTypeSelect").value;
+      const action_label = document.getElementById("alertActionLabel").value.trim();
+      const action_url = document.getElementById("alertActionUrl").value.trim();
+      const active = document.getElementById("alertActiveCheck").checked;
+
+      try {
+        const res = await fetch("/api/admin/alert/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, message, type, action_label, action_url, active }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showAdminToast(active ? "✓ In-App Alert broadcasted to all client apps!" : "✓ In-App Alert dismissed.");
+          loadAdminMetrics();
+        } else {
+          alert("Failed to broadcast alert: " + (data.error || "Unknown error"));
+        }
+      } catch (err) {
+        alert("Error publishing alert: " + err.message);
+      }
+    });
+  }
+
+  const btnClearAlert = document.getElementById("btnClearAlert");
+  if (btnClearAlert) {
+    btnClearAlert.addEventListener("click", async () => {
+      if (!confirm("Dismiss active in-app alert from all consumer apps?")) return;
+      try {
+        await fetch("/api/admin/alert/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: "", message: "", active: false }),
+        });
+        showAdminToast("✓ In-App Alert cleared.");
+        loadAdminMetrics();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+  }
+
   // 1. Software Update Form
   const updateForm = document.getElementById("publishUpdateForm");
   if (updateForm) {
@@ -330,7 +504,7 @@ function setupForms() {
       e.preventDefault();
       const name = document.getElementById("simNameInput").value.trim() || "Test Creator";
       const email = document.getElementById("simEmailInput").value.trim() || "creator@example.com";
-      const amount = parseFloat(document.getElementById("simAmountInput").value) || 2950;
+      const amount = parseFloat(document.getElementById("simAmountInput").value) || 10;
       const code = document.getElementById("simDiscountInput").value.trim();
 
       try {

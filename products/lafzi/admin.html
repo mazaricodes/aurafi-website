@@ -81,8 +81,8 @@
       <button class="tab-btn active" data-tab="tabOverview">📊 Overview & Revenue</button>
       <button class="tab-btn" data-tab="tabUpdates">🚀 Send Software Updates</button>
       <button class="tab-btn" data-tab="tabLicenses">🔑 License Keys Registry</button>
-      <button class="tab-btn" data-tab="tabDiscounts">🏷️ Discount Codes (Cap Limits)</button>
-      <button class="tab-btn" data-tab="tabLemon">🍋 Lemon Squeezy & Orders</button>
+      <button class="tab-btn" data-tab="tabDiscounts">🏷️ Promo Codes</button>
+      <button class="tab-btn" data-tab="tabGumroad">💳 Gumroad & Orders</button>
     </nav>
 
     <!-- TAB 1: OVERVIEW & REVENUE -->
@@ -105,7 +105,7 @@
         <div class="card-title-row">
           <div class="card-title">🛒 Recent Customer Transactions</div>
           <span style="font-size: 0.78rem; color: var(--text-muted);">
-            Lafzi Studio Purchases @ Rs 2,950
+            Lafzi Studio Lifetime Licenses @ $10 USD
           </span>
         </div>
         <div class="table-wrap">
@@ -153,18 +153,18 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">macOS Apple Silicon Download URL (arm64)</label>
-              <input type="url" class="input" id="updateDlSilicon" placeholder="https://downloads.lafzi.app/v1.1.0/LafziStudio-AppleSilicon.dmg">
+              <label class="form-label">macOS Download URL (Google Drive / Direct)</label>
+              <input type="url" class="input" id="updateDlSilicon" placeholder="https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing">
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
               <label class="form-label">macOS Intel Mac Download URL (x86_64)</label>
-              <input type="url" class="input" id="updateDlIntel" placeholder="https://downloads.lafzi.app/v1.1.0/LafziStudio-Intel.dmg">
+              <input type="url" class="input" id="updateDlIntel" placeholder="https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Windows 10/11 Download URL (x64)</label>
-              <input type="url" class="input" id="updateDlWindows" placeholder="https://downloads.lafzi.app/v1.1.0/LafziStudio-Windows-x64.zip">
+              <label class="form-label">Windows 10/11 Download URL (Google Drive / Direct)</label>
+              <input type="url" class="input" id="updateDlWindows" placeholder="https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing">
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px; margin: 16px 0 20px;">
@@ -180,26 +180,65 @@
           </form>
         </div>
 
-        <!-- Release Notes Preview -->
+        <!-- Broadcast In-App Announcement / Alert Form -->
         <div class="admin-card">
           <div class="card-title-row">
-            <div class="card-title">👁️ In-App Broadcast Preview</div>
-            <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-dim);">
-              OTA Client Preview
-            </span>
+            <div class="card-title">📢 Broadcast In-App Alert / Notice</div>
+            <span class="badge" id="alertActiveBadge">No Active Alert</span>
           </div>
-          <div style="background: #09090c; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 18px; font-size: 0.82rem;">
-            <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; color: var(--crimson-light);">
-              ⚡ Update Available: Lafzi Studio
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 18px;">
+            Send an instant notification banner to all running desktop instances of Lafzi on user machines.
+          </p>
+
+          <form id="publishAlertForm">
+            <div class="form-group">
+              <label class="form-label">Alert Title</label>
+              <input type="text" class="input" id="alertTitleInput" placeholder="e.g. Critical Update or Maintenance Notice" required>
             </div>
-            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 12px;" id="currentReleaseNotesPreview">
-              Loading current release notes...
-            </p>
-            <div style="display: flex; gap: 8px;">
-              <span class="btn btn-primary btn-sm" style="pointer-events: none;">⬇ Download & Install</span>
-              <span class="btn btn-secondary btn-sm" style="pointer-events: none;">Later</span>
+
+            <div class="form-group">
+              <label class="form-label">Alert Message</label>
+              <textarea class="textarea" id="alertMessageInput" rows="3" placeholder="Message to display in the consumer app top banner..." required></textarea>
             </div>
-          </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label class="form-label">Severity Level</label>
+                <select class="input" id="alertTypeSelect">
+                  <option value="info">Info (Blue Announcement)</option>
+                  <option value="warning">Warning (Orange Notice)</option>
+                  <option value="critical">Critical (Red Urgency)</option>
+                  <option value="success">Success (Green Update)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Button Label (Optional)</label>
+                <input type="text" class="input" id="alertActionLabel" placeholder="e.g. Download Now">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Action Link URL (Optional)</label>
+              <input type="url" class="input" id="alertActionUrl" placeholder="https://drive.google.com/file/d/...">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin: 14px 0 18px;">
+              <input type="checkbox" id="alertActiveCheck" checked>
+              <label for="alertActiveCheck" style="font-size: 0.82rem; color: var(--text-main); cursor: pointer;">
+                Broadcast Active (Uncheck to dismiss alert on all client apps)
+              </label>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button type="submit" class="btn btn-primary" style="flex: 1; padding: 10px;">
+                📢 Broadcast Alert to Clients
+              </button>
+              <button type="button" class="btn btn-secondary" id="btnClearAlert" style="padding: 10px;">
+                Dismiss Alert
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </section>
@@ -209,14 +248,28 @@
       <div class="admin-card">
         <div class="card-title-row">
           <div>
-            <div class="card-title">🔑 Hardware-Bound License Keys</div>
+            <div class="card-title">🔑 Hardware-Bound License Keys & Active Devices</div>
             <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
-              Keys generated here are authenticated by SHA256 cryptographic checksums and locked to device HWID.
+              Keys are cryptographically locked to device hardware (IOPlatformUUID / MachineGuid). One key cannot be used on multiple devices.
             </div>
           </div>
           <button class="btn btn-primary" id="btnGenerateKeys">
             + Generate License Keys
           </button>
+        </div>
+
+        <!-- Filter Bar & Search -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin: 18px 0 16px;">
+          <div style="display: flex; gap: 8px;" id="licenseFilterGroup">
+            <button class="btn btn-sm btn-secondary filter-lic-btn active" data-filter="all">All (<span id="licCountAll">0</span>)</button>
+            <button class="btn btn-sm btn-secondary filter-lic-btn" data-filter="active">🟢 Active (<span id="licCountActive">0</span>)</button>
+            <button class="btn btn-sm btn-secondary filter-lic-btn" data-filter="unused">🟡 Unused (<span id="licCountUnused">0</span>)</button>
+            <button class="btn btn-sm btn-secondary filter-lic-btn" data-filter="revoked">🔴 Revoked (<span id="licCountRevoked">0</span>)</button>
+          </div>
+
+          <div style="position: relative; flex: 1; max-width: 340px;">
+            <input type="text" id="licenseSearchInput" class="input" placeholder="🔍 Search key, email, or Hardware ID..." style="padding-left: 12px;">
+          </div>
         </div>
 
         <div class="table-wrap">
@@ -227,7 +280,8 @@
                 <th>Assigned Email</th>
                 <th>Status</th>
                 <th>Bound Hardware ID</th>
-                <th>Date Issued</th>
+                <th>Platform / Origin</th>
+                <th>Activated Date</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -274,42 +328,43 @@
       </div>
     </section>
 
-    <!-- TAB 5: LEMON SQUEEZY & ORDERS -->
-    <section id="tabLemon" class="tab-content">
+    <!-- TAB 5: GUMROAD INTEGRATION & SALES -->
+    <section id="tabGumroad" class="tab-content">
       <div class="form-grid">
-        <!-- Lemon Squeezy Webhook Config -->
+        <!-- Gumroad Webhook / Ping Config -->
         <div class="admin-card">
           <div class="card-title-row">
-            <div class="card-title">🍋 Lemon Squeezy Webhook Integration</div>
-            <span class="badge badge-active">Auto-Fulfillment Ready</span>
+            <div class="card-title">💳 Gumroad Webhook & License Sync</div>
+            <span class="badge badge-active">Gumroad Online</span>
           </div>
           <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
-            In your Lemon Squeezy Dashboard (Settings ➔ Webhooks), add this URL to automatically issue license keys on successful checkout:
+            In your Gumroad Dashboard (<strong>Settings ➔ Advanced ➔ Ping / Webhooks</strong>), add this webhook URL to automatically sync sales and log customer license keys:
           </p>
 
           <div style="display: flex; gap: 8px; margin-bottom: 18px;">
-            <input type="text" class="input" style="flex: 1; font-family: var(--font-mono); font-size: 0.82rem;" readonly value="http://localhost:8765/api/webhooks/lemonsqueezy" id="webhookUrlInput">
+            <input type="text" class="input" style="flex: 1; font-family: var(--font-mono); font-size: 0.82rem;" readonly value="http://localhost:8765/api/gumroad/webhook" id="webhookUrlInput">
             <button class="btn btn-secondary" onclick="copyText(document.getElementById('webhookUrlInput').value)">
-              📋 Copy
+              📋 Copy Webhook
             </button>
           </div>
 
-          <div style="font-size: 0.78rem; color: var(--text-dim); line-height: 1.5;">
-            <strong>Fulfillment Lifecycle:</strong><br>
-            1. Customer completes Rs 2,950 purchase on Lemon Squeezy.<br>
-            2. Lemon Squeezy notifies <code>/api/webhooks/lemonsqueezy</code>.<br>
-            3. Server generates a cryptographically signed license key, increments promo cap (if applied), and records the sale in your Revenue Dashboard.
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.6;">
+            <div style="font-weight: 700; color: #fff; margin-bottom: 6px;">Gumroad Product Configuration:</div>
+            <div>• <strong>Product URL:</strong> <a href="https://maxxed45.gumroad.com/l/lafzi" target="_blank" style="color: var(--crimson-light); text-decoration: underline;">https://maxxed45.gumroad.com/l/lafzi</a></div>
+            <div>• <strong>Product ID:</strong> <code>i6F1q10sSYXQrW1UU4PDHQ==</code></div>
+            <div>• <strong>Base Price:</strong> <code>$10.00 USD</code></div>
+            <div>• <strong>License Key Verification:</strong> Handled by Gumroad v2 API with single-workstation hardware binding.</div>
           </div>
         </div>
 
         <!-- Development Purchase Simulator -->
         <div class="admin-card">
           <div class="card-title-row">
-            <div class="card-title">🧪 Test Purchase Simulator</div>
+            <div class="card-title">🧪 Gumroad Sale Simulator</div>
             <span class="badge badge-warning">Dev Sandbox</span>
           </div>
           <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">
-            Test the complete end-to-end checkout, license key issuance, and discount cap counter without spending money.
+            Test the complete Gumroad sale webhook, customer registration, and license key generation without real charges.
           </p>
 
           <form id="simulatePurchaseForm">
@@ -324,8 +379,8 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Order Total (PKR)</label>
-              <input type="number" class="input" id="simAmountInput" value="2950">
+              <label class="form-label">Order Total ($ USD)</label>
+              <input type="number" class="input" id="simAmountInput" value="10" step="0.5">
             </div>
 
             <div class="form-group">
@@ -334,7 +389,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px;">
-              ⚡ Simulate Checkout & Issue License
+              ⚡ Simulate Gumroad Sale ($10 USD)
             </button>
           </form>
         </div>

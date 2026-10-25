@@ -72,21 +72,88 @@
           The offline AI video captioning studio engineered for South Asian creators. Transcribe 18 regional languages with native scripts, seamless Roman transliteration, and 24 viral creator styles.
         </p>
 
-        <div class="hero-actions">
-          <button class="btn btn-primary btn-lg btn-glow dynamic-platform-btn" data-open-modal="downloadModal" data-edition="free">
-             Download for macOS
-          </button>
-          <a href="#editions" class="btn btn-secondary btn-lg">
-            Compare Lafzi & Lafzi Studio
-          </a>
-        </div>
+        <!-- Direct 3-Platform Download Options (No Single Hero CTA) -->
+        <div class="hero-download-options" id="download">
+          <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="color: var(--mint);">●</span> Select Your Workstation to Download Free (2-Min Cap):
+          </div>
+          
+          <div class="hero-platform-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; max-width: 960px; margin: 0 auto 20px;">
+            <!-- Option 1: macOS Apple Silicon -->
+            <a href="https://drive.google.com/file/d/1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_/view?usp=share_link" target="_blank" rel="noopener" class="hero-platform-card" id="heroMacSiliconCard">
+              <div class="hpc-icon"></div>
+              <div class="hpc-info">
+                <div class="hpc-title">macOS Apple Silicon</div>
+                <div class="hpc-sub">M1, M2, M3, M4 • Metal GPU</div>
+              </div>
+              <span class="hpc-badge">Download .dmg ↗</span>
+            </a>
 
-        <div class="hero-platform-tag">
-          <span> macOS Universal (Apple Silicon & Intel)</span>
-          <span>•</span>
-          <span>⊞ Windows 10 / 11 (64-bit)</span>
-          <span>•</span>
-          <span>⚡ No Cloud Uploads</span>
+            <!-- Option 2: macOS Intel -->
+            <a href="https://drive.google.com/file/d/1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_/view?usp=share_link" target="_blank" rel="noopener" class="hero-platform-card" id="heroMacIntelCard">
+              <div class="hpc-icon"></div>
+              <div class="hpc-info">
+                <div class="hpc-title">macOS Intel x86_64</div>
+                <div class="hpc-sub">Core i5, i7, i9 • AVX2 Vector</div>
+              </div>
+              <span class="hpc-badge">Download .dmg ↗</span>
+            </a>
+
+            <!-- Option 3: Windows 10 / 11 -->
+            <a href="https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=share_link" target="_blank" rel="noopener" class="hero-platform-card" id="heroWindowsCard">
+              <div class="hpc-icon">⊞</div>
+              <div class="hpc-info">
+                <div class="hpc-title">Windows 10 / 11</div>
+                <div class="hpc-sub">64-bit • DirectML GPU Installer</div>
+              </div>
+              <span class="hpc-badge">Download .exe ↗</span>
+            </a>
+          </div>
+
+          <!-- macOS Gatekeeper 'Open Anyway' Helper Box -->
+          <div class="mac-gatekeeper-guide" style="max-width: 960px; margin: 0 auto 20px; background: rgba(18, 18, 24, 0.75); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 18px 22px; text-align: left; backdrop-filter: blur(12px);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+              <span style="font-weight: 700; color: #fff; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.05rem;"></span> macOS First Launch: How to allow "Open Anyway"
+              </span>
+              <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mint); background: rgba(0, 255, 178, 0.1); border: 1px solid rgba(0, 255, 178, 0.25); padding: 2px 8px; border-radius: 4px;">
+                1-Time Setup
+              </span>
+            </div>
+            
+            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+              Because Lafzi is distributed directly (outside the Mac App Store), Apple Gatekeeper may show: <em>"Lafzi.app cannot be opened because Apple cannot check it for malicious software"</em>. To allow it:
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.55;">
+              <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px 14px;">
+                <strong style="color: #fff; display: block; margin-bottom: 6px; font-size: 0.82rem;">Method 1 (System Settings):</strong>
+                1. Open <strong>System Settings</strong> (from Apple  menu).<br>
+                2. Click <strong>Privacy & Security</strong> in the left sidebar.<br>
+                3. Scroll down to the <strong>Security</strong> section.<br>
+                4. Next to <em>"Lafzi.app was blocked from use..."</em>, click <strong>"Open Anyway"</strong>.<br>
+                5. Enter your Mac password or Touch ID and click <strong>Open</strong>.
+              </div>
+
+              <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px 14px;">
+                <strong style="color: #fff; display: block; margin-bottom: 6px; font-size: 0.82rem;">Method 2 (Finder Shortcut):</strong>
+                1. Drag <code>Lafzi.app</code> into your <strong>Applications</strong> folder.<br>
+                2. <strong>Right-Click (or Control-Click)</strong> <code>Lafzi.app</code>.<br>
+                3. Click <strong>Open</strong> from the pop-up context menu.<br>
+                4. In the verification prompt, click <strong>Open</strong>.<br>
+                <em>(This grants permanent permission for future clicks!)</em>
+              </div>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.74rem; color: var(--text-dim); text-align: right;">
+              ✓ You only need to confirm this once. All future launches start instantly and 100% offline.
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 18px;">
+            <a href="#editions" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; padding: 8px 18px;">
+              View Features & Upgrade to Studio ($10 Lifetime) ↓
+            </a>
+          </div>
         </div>
 
         <div class="hero-social-proof">
@@ -340,7 +407,8 @@
             <p class="pricing-desc">The complete powerhouse for content agencies, editors, and serious creators.</p>
             
             <div class="pricing-cost" id="studioPricingDisplay">
-              <span class="amount" id="studioPriceAmount">$10 <span style="font-size: 1rem; font-weight: 500; opacity: 0.75;">(Rs 2,950)</span></span>
+              <span class="amount" id="studioPriceAmount">$10</span>
+              <div id="localCurrencyEstimate" style="font-size: 0.86rem; color: var(--mint); margin-top: 4px; font-weight: 600; display: none;"></div>
               <span class="period">One-time / Lifetime License</span>
             </div>
 
@@ -367,7 +435,7 @@
             </ul>
 
             <a href="https://maxxed45.gumroad.com/l/lafzi" class="gumroad-button btn btn-primary btn-glow" style="width: 100%; font-size: 1rem; padding: 14px; text-decoration: none;" id="btnBuyGumroad" target="_blank" rel="noopener">
-              ⚡ Buy Lafzi Studio — $10 (Rs 2,950)
+              ⚡ Buy Lafzi Studio — $10
             </a>
             <div style="text-align: center; margin-top: 10px;">
               <a href="#" style="font-size: 0.76rem; color: var(--text-dim); text-decoration: underline;" data-open-modal="downloadModal" data-edition="studio">
@@ -448,6 +516,18 @@
               Yes! In Lafzi Studio, you can drop in any standard font file (<code>.ttf</code>, <code>.otf</code>, or <code>.woff2</code>). Whether you want classical Urdu Nastaliq (Jameel Noori Nastaliq), Devanagari typography, or modern display fonts, your font renders instantly on your video timeline.
             </div>
           </div>
+
+          <div class="faq-item">
+            <div class="faq-question">
+              <span> macOS says "cannot be opened because Apple cannot check it" — How do I allow it?</span>
+              <span class="faq-icon">+</span>
+            </div>
+            <div class="faq-answer">
+              Because Lafzi is distributed directly to creators without the Apple App Store middleman, Apple Gatekeeper displays a standard safety notice on the first launch. You only need to allow it once:<br><br>
+              <strong>Method 1 (System Settings):</strong> Open <strong>System Settings → Privacy & Security</strong>. Scroll down to the <strong>Security</strong> section. Next to <em>"Lafzi.app was blocked from use..."</em>, click the <strong>"Open Anyway"</strong> button and confirm with your password or Touch ID.<br><br>
+              <strong>Method 2 (Finder Shortcut):</strong> In your Mac <strong>Applications</strong> folder, <strong>Right-Click (or Control-Click) <code>Lafzi.app</code></strong>, choose <strong>Open</strong> from the menu, and click <strong>Open</strong> in the verification prompt. Lafzi will launch immediately.
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -463,31 +543,47 @@
       </p>
 
       <div class="platform-choice-grid">
-        <!-- Mac Universal (Apple Silicon + Intel) -->
-        <a href="./downloads/Lafzi-macOS-Universal.zip" class="platform-card" id="macDownloadCard" data-platform-name="macOS Universal" data-platform-download="mac" download>
+        <!-- Mac (Apple Silicon M1-M4) -->
+        <a href="https://drive.google.com/file/d/1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_/view?usp=share_link" class="platform-card" id="macDownloadCard" data-platform-name="macOS Apple Silicon" data-platform-download="mac" target="_blank" rel="noopener">
           <div class="platform-meta">
-            <h4> macOS — Universal 2</h4>
-            <span>Apple Silicon (M1–M4) & Intel Macs • Apple Metal GPU</span>
+            <h4> macOS (Apple Silicon M1–M4)</h4>
+            <span>Direct Google Drive • Self-Contained DMG • Metal GPU</span>
           </div>
-          <span class="download-btn-badge">Download (1.6 MB) ↓</span>
+          <span class="download-btn-badge">Download DMG ↗</span>
+        </a>
+
+        <!-- Mac (Intel Core i5/i7/i9) -->
+        <a href="https://drive.google.com/file/d/1Wg28zoajV6J4pEcfHVXpEwTBU7GLp8c_/view?usp=share_link" class="platform-card" id="macIntelDownloadCard" data-platform-name="macOS Intel x86_64" data-platform-download="mac_intel" target="_blank" rel="noopener">
+          <div class="platform-meta">
+            <h4> macOS (Intel x86_64)</h4>
+            <span>Direct Google Drive • Intel DMG • Core i5/i7/i9</span>
+          </div>
+          <span class="download-btn-badge">Download DMG ↗</span>
         </a>
 
         <!-- Windows 64-bit -->
-        <a href="https://github.com/mazaricodes/aurafi-website/releases/download/v1.0.0/Lafzi-Setup.exe" class="platform-card" id="winDownloadCard" data-platform-name="Windows 10/11" data-platform-download="windows" download>
+        <a href="https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=share_link" class="platform-card" id="winDownloadCard" data-platform-name="Windows 10/11" data-platform-download="windows" target="_blank" rel="noopener">
           <div class="platform-meta">
             <h4>⊞ Windows 10 / 11 (64-bit)</h4>
-            <span>Official Installer (.exe) • Includes Offline AI Engine</span>
+            <span>Direct Google Drive • Installer (Lafzi-Setup.exe)</span>
           </div>
-          <span class="download-btn-badge">Download Installer (.exe) ↓</span>
+          <span class="download-btn-badge">Download (.exe) ↗</span>
         </a>
       </div>
 
       <div class="modal-instructions" id="modalInstructions" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
-        <div style="font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-          <span style="color: var(--mint);">✓</span> Quick Launch Guide:
+        <div style="font-weight: 700; color: #fff; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--mint);">✓</span>  macOS "Open Anyway" Launch Steps:
+          </span>
+          <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mint); background: rgba(0,255,178,0.1); padding: 2px 6px; border-radius: 4px;">1-Time Only</span>
         </div>
-        <div style="margin-bottom: 5px;"><strong> macOS:</strong> Unzip and open <code>Lafzi.app</code>. If prompted by macOS Gatekeeper: Go to <strong>System Settings → Privacy & Security</strong>, scroll to Security, and click <strong>"Open Anyway"</strong>.</div>
-        <div><strong>⊞ Windows:</strong> Download and double-click <code>Lafzi-Setup.exe</code> to install.</div>
+        <div style="margin-bottom: 8px; line-height: 1.55;">
+          <strong>Method 1:</strong> When opening <code>Lafzi.app</code>, if macOS blocks it: Go to <strong>System Settings → Privacy & Security</strong>, scroll down to <strong>Security</strong>, and click <strong>"Open Anyway"</strong> next to <em>Lafzi was blocked</em>, then confirm with your password.<br>
+          <strong>Method 2 (Quickest):</strong> In Finder <strong>Applications</strong>, <strong>Right-Click (Control-Click) <code>Lafzi.app</code></strong> → choose <strong>Open</strong> → click <strong>Open</strong> in the dialog.
+        </div>
+        <div style="margin-bottom: 6px; border-top: 1px solid var(--border-subtle); padding-top: 6px;"><strong>⊞ Windows:</strong> Double-click <code>Lafzi-Setup.exe</code> to install and launch.</div>
+        <div style="color: var(--crimson-light); font-size: 0.76rem;">⭐ <strong>Have a Studio License?</strong> Open the downloaded Lafzi app, click <em>"⭐ Upgrade to Studio" → "Enter License Key"</em> to unlock all Studio features instantly!</div>
       </div>
     </div>
   </div>
