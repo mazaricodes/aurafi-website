@@ -505,12 +505,22 @@ function setupModalHandlers() {
   platformCards.forEach((card) => {
     card.addEventListener("click", () => {
       const platformName = card.getAttribute("data-platform-name") || "Package";
+      const dlType = (card.getAttribute("data-platform-download") || "").toLowerCase();
       const pLower = platformName.toLowerCase();
-      const osKey = pLower.includes("mac") ? "macos_universal" : "windows_x64";
+      let osKey = "macos_arm64";
+      if (dlType.includes("intel") || pLower.includes("intel")) {
+        osKey = "macos_x86_64";
+      } else if (dlType.includes("win") || pLower.includes("win")) {
+        osKey = "windows_x64";
+      } else {
+        osKey = "macos_arm64";
+      }
 
-      // Track platform download
-      fetch("/api/downloads/track", {
+      // Track platform download via Vercel Cloud Registry
+      const registryHost = window.LAFZI_REGISTRY_URL || "https://lafzi-cloud-registry.vercel.app";
+      fetch(`${registryHost}/api/downloads/track`, {
         method: "POST",
+        mode: "cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ platform: osKey }),
       }).catch(() => {});
