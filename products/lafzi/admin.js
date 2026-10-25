@@ -410,13 +410,13 @@ function renderUpdateManifest(upd) {
   const dl = upd.downloads || {};
   if (document.getElementById("updateDlSilicon"))
     document.getElementById("updateDlSilicon").value =
-      dl.macos_arm64 || "https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing";
+      dl.macos_arm64 || "https://drive.google.com/file/d/1ko7UVnAsgrSxxZR4xD3nE-RStxfcQZHo/view?usp=sharing";
   if (document.getElementById("updateDlIntel"))
     document.getElementById("updateDlIntel").value =
-      dl.macos_x86_64 || "https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing";
+      dl.macos_x86_64 || "https://drive.google.com/file/d/1gsIsR6cu6u_GQQGq4pMpPv4SpjBBFwAx/view?usp=sharing";
   if (document.getElementById("updateDlWindows"))
     document.getElementById("updateDlWindows").value =
-      dl.windows_x64 || "https://drive.google.com/file/d/1_rjVpBeG1ubkX2rRn4Kl-zVSckVTzBYZ/view?usp=sharing";
+      dl.windows_x64 || "https://drive.google.com/file/d/1Vy9Z0cHnD5kOr6hE5EkZSewV3oRRWuW5/view?usp=sharing";
 }
 
 // Render In-App Alert Broadcast Form & Badge
