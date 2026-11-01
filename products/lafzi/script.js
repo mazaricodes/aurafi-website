@@ -459,6 +459,9 @@ function setupModalHandlers() {
   const triggers = document.querySelectorAll("[data-open-modal='downloadModal']");
   const modalTitle = document.getElementById("modalEditionTitle");
   const modalDesc = document.getElementById("modalEditionDesc");
+  const modalInstructions = document.getElementById("modalInstructions");
+  const platformCards = document.querySelectorAll(".platform-card");
+
   const macCard = document.getElementById("macDownloadCard");
   const macIntelCard = document.getElementById("macIntelDownloadCard");
   const winCard = document.getElementById("winDownloadCard");
@@ -471,24 +474,61 @@ function setupModalHandlers() {
       const edition = btn.getAttribute("data-edition") || "free";
       currentModalEdition = edition;
 
-      if (macCard) macCard.href = FREE_DOWNLOADS.mac;
-      if (macIntelCard) macIntelCard.href = FREE_DOWNLOADS.mac_intel;
-      if (winCard) winCard.href = FREE_DOWNLOADS.windows;
+      const checkoutUrl = getActiveCheckoutUrl();
 
       if (edition === "studio") {
-        if (modalTitle) modalTitle.textContent = "Download Lafzi & Activate Studio";
+        if (modalTitle) modalTitle.textContent = "Select Your Operating System";
         if (modalDesc) {
-          modalDesc.innerHTML = `
-            <strong>Step 1:</strong> Purchase your lifetime license key on <a href="${DEFAULT_GUMROAD_URL}" target="_blank" class="gumroad-button" style="color:var(--crimson-light);font-weight:700;text-decoration:underline;">Gumroad ($10 USD)</a>.<br>
-            <strong>Step 2:</strong> Download the Lafzi installer below for your machine.<br>
-            <strong>Step 3:</strong> In Lafzi, click <em>"⭐ Upgrade to Studio" → "Enter License Key"</em> to unlock all features!
-          `;
+          modalDesc.textContent = "Select your system to proceed to checkout. You'll receive your download link and license key on Gumroad:";
         }
+        if (modalInstructions) modalInstructions.style.display = "none";
+
+        // Configure cards for clean Studio Gumroad buyout
+        platformCards.forEach((card) => {
+          card.href = checkoutUrl;
+          const badge = card.querySelector(".download-btn-badge");
+          if (badge) badge.textContent = "Continue to Checkout ↗";
+          const desc = card.querySelector(".platform-meta-desc");
+          if (desc) desc.style.display = "none";
+        });
       } else {
-        if (modalTitle) modalTitle.textContent = "Download Lafzi";
+        if (modalTitle) modalTitle.textContent = "Download Lafzi Free";
         if (modalDesc) {
           modalDesc.textContent =
-            "100% offline, free forever, capped at 2 minutes per project. Select your workstation below to download from Google Drive.";
+            "100% offline, free forever, capped at 2 minutes per project. Select your workstation below to start downloading:";
+        }
+        if (modalInstructions) modalInstructions.style.display = "block";
+
+        // Configure cards for Free direct download
+        if (macCard) {
+          macCard.href = FREE_DOWNLOADS.mac;
+          const b = macCard.querySelector(".download-btn-badge");
+          if (b) b.textContent = "Direct Download .dmg ↗";
+          const desc = macCard.querySelector(".platform-meta-desc");
+          if (desc) {
+            desc.textContent = "Direct Google Drive • Self-Contained DMG • Metal GPU";
+            desc.style.display = "block";
+          }
+        }
+        if (macIntelCard) {
+          macIntelCard.href = FREE_DOWNLOADS.mac_intel;
+          const b = macIntelCard.querySelector(".download-btn-badge");
+          if (b) b.textContent = "Direct Download .dmg ↗";
+          const desc = macIntelCard.querySelector(".platform-meta-desc");
+          if (desc) {
+            desc.textContent = "Direct Google Drive • Intel DMG • Core i5/i7/i9";
+            desc.style.display = "block";
+          }
+        }
+        if (winCard) {
+          winCard.href = FREE_DOWNLOADS.windows;
+          const b = winCard.querySelector(".download-btn-badge");
+          if (b) b.textContent = "Direct Download .exe ↗";
+          const desc = winCard.querySelector(".platform-meta-desc");
+          if (desc) {
+            desc.textContent = "Direct Google Drive • Installer (Lafzi-Setup.exe)";
+            desc.style.display = "block";
+          }
         }
       }
 
@@ -503,10 +543,9 @@ function setupModalHandlers() {
     });
   }
 
-  // Handle direct download clicks on cards
-  const platformCards = document.querySelectorAll(".platform-card");
+  // Handle direct clicks on platform cards
   platformCards.forEach((card) => {
-    card.addEventListener("click", () => {
+    card.addEventListener("click", (e) => {
       const platformName = card.getAttribute("data-platform-name") || "Package";
       const dlType = (card.getAttribute("data-platform-download") || "").toLowerCase();
       const pLower = platformName.toLowerCase();
@@ -528,7 +567,15 @@ function setupModalHandlers() {
         body: JSON.stringify({ platform: osKey, edition: currentModalEdition }),
       }).catch(() => {});
 
-      showToast(`✓ Starting download for ${platformName}...`);
+      if (currentModalEdition === "studio") {
+        e.preventDefault();
+        const checkoutUrl = getActiveCheckoutUrl();
+        window.open(checkoutUrl, "_blank");
+        if (modal) modal.classList.remove("active");
+        showToast(`✓ Opening Gumroad buyout for ${platformName}...`);
+      } else {
+        showToast(`✓ Starting download for ${platformName}...`);
+      }
     });
   });
 }
@@ -591,21 +638,21 @@ function showToast(msg) {
 const DEFAULT_GUMROAD_URL = window.LAFZI_GUMROAD_URL || "https://maxxed45.gumroad.com/l/lafzi";
 let activeDiscount = null;
 
+function getActiveCheckoutUrl() {
+  let url = DEFAULT_GUMROAD_URL;
+  if (activeDiscount && activeDiscount.code) {
+    const sep = url.includes("?") ? "&" : "?";
+    url += `${sep}discount_code=${encodeURIComponent(activeDiscount.code)}`;
+  }
+  return url;
+}
+
 function setupCheckoutAndDiscounts() {
   const applyBtn = document.getElementById("btnApplyPromo");
   const promoInput = document.getElementById("promoCodeInput");
   const feedback = document.getElementById("promoFeedbackMsg");
   const priceDisplay = document.getElementById("studioPriceAmount");
   const buyBtn = document.getElementById("btnBuyGumroad") || document.getElementById("btnBuyLemonSqueezy");
-
-  function getActiveCheckoutUrl() {
-    let url = DEFAULT_GUMROAD_URL;
-    if (activeDiscount && activeDiscount.code) {
-      const sep = url.includes("?") ? "&" : "?";
-      url += `${sep}discount_code=${encodeURIComponent(activeDiscount.code)}`;
-    }
-    return url;
-  }
 
   function syncBuyButton() {
     if (buyBtn) {
@@ -682,23 +729,9 @@ function setupCheckoutAndDiscounts() {
     });
   }
 
-  // Gumroad Buy Handler (updates dynamic query params & tracks paid download/checkout)
+  // Ensure buy button stays synced with any active discount
   if (buyBtn) {
     syncBuyButton();
-    buyBtn.addEventListener("click", () => {
-      const checkoutUrl = getActiveCheckoutUrl();
-      buyBtn.href = checkoutUrl;
-
-      // Track paid download / checkout click in total downloads
-      const registryHost = window.LAFZI_REGISTRY_URL || "https://lafzi-cloud-registry.vercel.app";
-      const userOs = currentDetectedPlatform.includes("win") ? "windows_x64" : "macos_arm64";
-      fetch(`${registryHost}/api/downloads/track`, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ platform: userOs, edition: "studio" }),
-      }).catch(() => {});
-    });
   }
 }
 
