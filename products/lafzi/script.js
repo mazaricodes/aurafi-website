@@ -485,7 +485,7 @@ function setupModalHandlers() {
 
         // Configure cards for clean Studio Gumroad buyout
         platformCards.forEach((card) => {
-          card.href = checkoutUrl;
+          card.href = "#";
           const badge = card.querySelector(".download-btn-badge");
           if (badge) badge.textContent = "Continue to Checkout ↗";
           const desc = card.querySelector(".platform-meta-desc");
@@ -570,9 +570,17 @@ function setupModalHandlers() {
       if (currentModalEdition === "studio") {
         e.preventDefault();
         const checkoutUrl = getActiveCheckoutUrl();
-        window.open(checkoutUrl, "_blank");
         if (modal) modal.classList.remove("active");
-        showToast(`✓ Opening Gumroad buyout for ${platformName}...`);
+
+        // Trigger Gumroad checkout popup now that OS has been selected
+        const trigger = document.getElementById("gumroadOverlayTrigger");
+        if (trigger) {
+          trigger.href = checkoutUrl;
+          trigger.click();
+        } else {
+          window.open(checkoutUrl, "_blank");
+        }
+        showToast(`✓ Opening Gumroad checkout for ${platformName}...`);
       } else {
         showToast(`✓ Starting download for ${platformName}...`);
       }
@@ -655,8 +663,9 @@ function setupCheckoutAndDiscounts() {
   const buyBtn = document.getElementById("btnBuyGumroad") || document.getElementById("btnBuyLemonSqueezy");
 
   function syncBuyButton() {
-    if (buyBtn) {
-      buyBtn.href = getActiveCheckoutUrl();
+    const trigger = document.getElementById("gumroadOverlayTrigger");
+    if (trigger) {
+      trigger.href = getActiveCheckoutUrl();
     }
   }
 

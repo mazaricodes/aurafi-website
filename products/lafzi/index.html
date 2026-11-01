@@ -42,7 +42,7 @@
         <button class="btn btn-secondary btn-sm" data-open-modal="downloadModal" data-edition="free">
           Download Lafzi
         </button>
-        <button class="btn btn-primary btn-sm btn-glow" data-open-modal="downloadModal" data-edition="studio">
+        <button class="btn btn-primary btn-sm btn-glow" data-open-modal="downloadModal" data-edition="studio" data-gumroad-ignore="true">
           Get Lafzi Studio
         </button>
       </div>
@@ -358,9 +358,9 @@
               <li><span class="check">✓</span> Hardware-Bound Anti-Piracy License</li>
             </ul>
 
-            <a href="https://maxxed45.gumroad.com/l/lafzi" class="gumroad-button btn btn-primary btn-glow" style="width: 100%; font-size: 1rem; padding: 14px; text-decoration: none;" id="btnBuyGumroad" target="_blank" rel="noopener" data-open-modal="downloadModal" data-edition="studio">
+            <button type="button" class="btn btn-primary btn-glow" style="width: 100%; font-size: 1rem; padding: 14px;" id="btnBuyGumroad" data-open-modal="downloadModal" data-edition="studio" data-gumroad-ignore="true">
               ⚡ Buy Lafzi Studio — $10
-            </a>
+            </button>
             <div style="text-align: center; margin-top: 10px;">
               <a href="#" style="font-size: 0.76rem; color: var(--text-dim); text-decoration: underline;" data-open-modal="downloadModal" data-edition="free">
                 or test free edition first (2 min cap) ↗
@@ -456,6 +456,9 @@
       </div>
     </section>
   </main>
+
+  <!-- Hidden Gumroad Overlay Trigger (Fires only after OS selection) -->
+  <a href="https://maxxed45.gumroad.com/l/lafzi" id="gumroadOverlayTrigger" class="gumroad-button" target="_blank" rel="noopener" style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden;" aria-hidden="true"></a>
 
   <!-- Platform Download Modal -->
   <div class="modal-overlay" id="downloadModal">
