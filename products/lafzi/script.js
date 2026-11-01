@@ -463,10 +463,13 @@ function setupModalHandlers() {
   const macIntelCard = document.getElementById("macIntelDownloadCard");
   const winCard = document.getElementById("winDownloadCard");
 
+  let currentModalEdition = "free";
+
   triggers.forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       const edition = btn.getAttribute("data-edition") || "free";
+      currentModalEdition = edition;
 
       if (macCard) macCard.href = FREE_DOWNLOADS.mac;
       if (macIntelCard) macIntelCard.href = FREE_DOWNLOADS.mac_intel;
@@ -522,7 +525,7 @@ function setupModalHandlers() {
         method: "POST",
         mode: "cors",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ platform: osKey }),
+        body: JSON.stringify({ platform: osKey, edition: currentModalEdition }),
       }).catch(() => {});
 
       showToast(`✓ Starting download for ${platformName}...`);
@@ -679,12 +682,22 @@ function setupCheckoutAndDiscounts() {
     });
   }
 
-  // Gumroad Buy Handler (updates dynamic query params)
+  // Gumroad Buy Handler (updates dynamic query params & tracks paid download/checkout)
   if (buyBtn) {
     syncBuyButton();
     buyBtn.addEventListener("click", () => {
       const checkoutUrl = getActiveCheckoutUrl();
       buyBtn.href = checkoutUrl;
+
+      // Track paid download / checkout click in total downloads
+      const registryHost = window.LAFZI_REGISTRY_URL || "https://lafzi-cloud-registry.vercel.app";
+      const userOs = currentDetectedPlatform.includes("win") ? "windows_x64" : "macos_arm64";
+      fetch(`${registryHost}/api/downloads/track`, {
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ platform: userOs, edition: "studio" }),
+      }).catch(() => {});
     });
   }
 }

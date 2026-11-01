@@ -181,7 +181,10 @@ function renderMetrics(data) {
   const dlElem = document.getElementById("metricDownloads");
   if (dlElem) dlElem.textContent = (dl.total || 0).toLocaleString();
   const dlSub = document.getElementById("metricDownloadsSub");
-  if (dlSub) dlSub.textContent = `${dl.macos_arm64 || 0} M-Silicon • ${dl.macos_x86_64 || 0} Intel • ${dl.windows_x64 || 0} Win`;
+  if (dlSub) {
+    const paidStr = dl.paid !== undefined ? `${dl.paid} Studio • ${dl.free || 0} Free • ` : "";
+    dlSub.textContent = `${paidStr}${dl.macos_arm64 || 0} M-Silicon • ${dl.macos_x86_64 || 0} Intel • ${dl.windows_x64 || 0} Win`;
+  }
 
   // Card 4: Active License Keys
   const licElem = document.getElementById("metricLicenses");
