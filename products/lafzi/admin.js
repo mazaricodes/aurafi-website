@@ -477,6 +477,8 @@ function setupForms() {
   if (alertForm) {
     alertForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const base = getRegistryBaseUrl();
+      const pin = getAdminPin();
       const title = document.getElementById("alertTitleInput").value.trim();
       const message = document.getElementById("alertMessageInput").value.trim();
       const type = document.getElementById("alertTypeSelect").value;
@@ -485,12 +487,29 @@ function setupForms() {
       const active = document.getElementById("alertActiveCheck").checked;
 
       try {
-        const res = await fetch("/api/admin/alert/publish", {
+        const res = await fetch(`${base}/api/admin/alert/publish`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, message, type, action_label, action_url, active }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Pin": pin,
+          },
+          body: JSON.stringify({
+            admin_pin: pin,
+            title,
+            message,
+            type,
+            action_label,
+            action_url,
+            active,
+          }),
         });
-        const data = await res.json();
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(`Server returned HTTP ${res.status}: ${text.slice(0, 120)}`);
+        }
         if (data.ok) {
           showAdminToast(active ? "✓ In-App Alert broadcasted to all client apps!" : "✓ In-App Alert dismissed.");
           loadAdminMetrics();
@@ -507,14 +526,35 @@ function setupForms() {
   if (btnClearAlert) {
     btnClearAlert.addEventListener("click", async () => {
       if (!confirm("Dismiss active in-app alert from all consumer apps?")) return;
+      const base = getRegistryBaseUrl();
+      const pin = getAdminPin();
       try {
-        await fetch("/api/admin/alert/publish", {
+        const res = await fetch(`${base}/api/admin/alert/publish`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: "", message: "", active: false }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Pin": pin,
+          },
+          body: JSON.stringify({
+            admin_pin: pin,
+            title: "",
+            message: "",
+            active: false,
+          }),
         });
-        showAdminToast("✓ In-App Alert cleared.");
-        loadAdminMetrics();
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(`Server returned HTTP ${res.status}: ${text.slice(0, 120)}`);
+        }
+        if (data.ok) {
+          showAdminToast("✓ In-App Alert cleared.");
+          loadAdminMetrics();
+        } else {
+          alert("Failed to clear alert: " + (data.error || "Unknown error"));
+        }
       } catch (err) {
         alert("Error: " + err.message);
       }
@@ -526,6 +566,8 @@ function setupForms() {
   if (updateForm) {
     updateForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const base = getRegistryBaseUrl();
+      const pin = getAdminPin();
       const version = document.getElementById("updateVersionInput").value.trim();
       const notes = document.getElementById("updateNotesInput").value.trim();
       const mandatory = document.getElementById("updateMandatoryCheck").checked;
@@ -536,14 +578,31 @@ function setupForms() {
       };
 
       try {
-        const res = await fetch("/api/admin/updates/publish", {
+        const res = await fetch(`${base}/api/admin/updates/publish`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ version, release_notes: notes, mandatory, downloads }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Pin": pin,
+          },
+          body: JSON.stringify({
+            admin_pin: pin,
+            version,
+            release_notes: notes,
+            mandatory,
+            downloads,
+          }),
         });
-        const data = await res.json();
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(`Server returned HTTP ${res.status}: ${text.slice(0, 120)}`);
+        }
         if (data.ok) {
           showAdminToast(`✓ Software update v${version} published successfully!`);
+          const curVer = document.getElementById("currentPublishedVersion");
+          if (curVer) curVer.textContent = `v${version}`;
           loadAdminMetrics();
         } else {
           alert("Publish failed: " + (data.error || "Unknown error"));
@@ -558,17 +617,33 @@ function setupForms() {
   const genBtn = document.getElementById("btnGenerateKeys");
   if (genBtn) {
     genBtn.addEventListener("click", async () => {
+      const base = getRegistryBaseUrl();
+      const pin = getAdminPin();
       const count = parseInt(prompt("How many license keys would you like to generate?", "5"), 10);
       if (!count || count <= 0) return;
       const note = prompt("Optional label/note for these keys:", "Manual batch") || "";
 
       try {
-        const res = await fetch("/api/admin/licenses/generate", {
+        const res = await fetch(`${base}/api/admin/licenses/generate`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ count, note }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Pin": pin,
+          },
+          body: JSON.stringify({
+            admin_pin: pin,
+            count,
+            note,
+          }),
         });
-        const keys = await res.json();
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(`Server returned HTTP ${res.status}: ${text.slice(0, 120)}`);
+        }
+        const keys = data.keys || [];
         showAdminToast(`✓ Generated ${keys.length} new Lafzi Studio license key(s)!`);
         loadAdminMetrics();
       } catch (err) {
