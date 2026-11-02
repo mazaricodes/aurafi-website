@@ -397,29 +397,80 @@ function renderDiscountsTable(discounts) {
 }
 
 // Render Software Update Form
+// Render Software Update Form & Per-Device Cards
 function renderUpdateManifest(upd) {
-  const curVer = document.getElementById("currentPublishedVersion");
-  if (curVer) curVer.textContent = `v${upd.latest_version || "1.0.0"}`;
+  const isRecalled = Boolean(upd && (upd.recalled === true || upd.active === false));
+  const activeBadge = document.getElementById("updateActiveBadge");
+  if (activeBadge) {
+    if (isRecalled) {
+      activeBadge.className = "badge badge-revoked";
+      activeBadge.textContent = "⏸️ Notifications Silenced / Recalled";
+    } else {
+      activeBadge.className = "badge badge-active";
+      activeBadge.textContent = "🟢 Updates Active";
+    }
+  }
 
-  const notesPreview = document.getElementById("currentReleaseNotesPreview");
-  if (notesPreview) notesPreview.textContent = upd.release_notes || "No release notes published.";
+  const platforms = (upd && upd.platforms) || {};
 
+  // 1. Silicon
+  const sil = platforms.macos_arm64 || {};
+  const silActive = !isRecalled && sil.active !== false && !sil.recalled;
+  const bSilicon = document.getElementById("badgeSiliconStatus");
+  if (bSilicon) {
+    bSilicon.className = silActive ? "badge badge-active" : "badge badge-revoked";
+    bSilicon.textContent = silActive ? `v${sil.version || upd.latest_version || "1.0.0"}` : `⏸️ Recalled (v${sil.version || "1.0.0"})`;
+  }
+  const verSil = document.getElementById("verSiliconInput");
+  if (verSil) verSil.value = sil.version || upd.latest_version || "1.0.0";
+  const urlSil = document.getElementById("urlSiliconInput");
+  if (urlSil) urlSil.value = sil.download_url || upd.downloads?.macos_arm64 || "https://drive.usercontent.google.com/download?id=1ko7UVnAsgrSxxZR4xD3nE-RStxfcQZHo&export=download&confirm=t";
+  const notesSil = document.getElementById("notesSiliconInput");
+  if (notesSil && !notesSil.value) notesSil.value = sil.release_notes || "";
+  const mandSil = document.getElementById("mandatorySiliconCheck");
+  if (mandSil) mandSil.checked = Boolean(sil.mandatory);
+
+  // 2. Intel
+  const intel = platforms.macos_x86_64 || {};
+  const intelActive = !isRecalled && intel.active !== false && !intel.recalled;
+  const bIntel = document.getElementById("badgeIntelStatus");
+  if (bIntel) {
+    bIntel.className = intelActive ? "badge badge-active" : "badge badge-revoked";
+    bIntel.textContent = intelActive ? `v${intel.version || upd.latest_version || "1.0.0"}` : `⏸️ Recalled (v${intel.version || "1.0.0"})`;
+  }
+  const verIntel = document.getElementById("verIntelInput");
+  if (verIntel) verIntel.value = intel.version || upd.latest_version || "1.0.0";
+  const urlIntel = document.getElementById("urlIntelInput");
+  if (urlIntel) urlIntel.value = intel.download_url || upd.downloads?.macos_x86_64 || "https://drive.usercontent.google.com/download?id=1gsIsR6cu6u_GQQGq4pMpPv4SpjBBFwAx&export=download&confirm=t";
+  const notesIntel = document.getElementById("notesIntelInput");
+  if (notesIntel && !notesIntel.value) notesIntel.value = intel.release_notes || "";
+  const mandIntel = document.getElementById("mandatoryIntelCheck");
+  if (mandIntel) mandIntel.checked = Boolean(intel.mandatory);
+
+  // 3. Windows
+  const win = platforms.windows_x64 || {};
+  const winActive = !isRecalled && win.active !== false && !win.recalled;
+  const bWin = document.getElementById("badgeWindowsStatus");
+  if (bWin) {
+    bWin.className = winActive ? "badge badge-active" : "badge badge-revoked";
+    bWin.textContent = winActive ? `v${win.version || upd.latest_version || "1.0.0"}` : `⏸️ Recalled (v${win.version || "1.0.0"})`;
+  }
+  const verWin = document.getElementById("verWindowsInput");
+  if (verWin) verWin.value = win.version || upd.latest_version || "1.0.0";
+  const urlWin = document.getElementById("urlWindowsInput");
+  if (urlWin) urlWin.value = win.download_url || upd.downloads?.windows_x64 || "https://drive.usercontent.google.com/download?id=1Vy9Z0cHnD5kOr6hE5EkZSewV3oRRWuW5&export=download&confirm=t";
+  const notesWin = document.getElementById("notesWindowsInput");
+  if (notesWin && !notesWin.value) notesWin.value = win.release_notes || "";
+  const mandWin = document.getElementById("mandatoryWindowsCheck");
+  if (mandWin) mandWin.checked = Boolean(win.mandatory);
+
+  // Universal
   const verInput = document.getElementById("updateVersionInput");
   if (verInput && !verInput.value) verInput.value = upd.latest_version || "1.0.0";
-
   const notesInput = document.getElementById("updateNotesInput");
   if (notesInput && !notesInput.value) notesInput.value = upd.release_notes || "";
-
-  const dl = upd.downloads || {};
-  if (document.getElementById("updateDlSilicon"))
-    document.getElementById("updateDlSilicon").value =
-      dl.macos_arm64 || "https://drive.google.com/file/d/1ko7UVnAsgrSxxZR4xD3nE-RStxfcQZHo/view?usp=sharing";
-  if (document.getElementById("updateDlIntel"))
-    document.getElementById("updateDlIntel").value =
-      dl.macos_x86_64 || "https://drive.google.com/file/d/1gsIsR6cu6u_GQQGq4pMpPv4SpjBBFwAx/view?usp=sharing";
-  if (document.getElementById("updateDlWindows"))
-    document.getElementById("updateDlWindows").value =
-      dl.windows_x64 || "https://drive.google.com/file/d/1Vy9Z0cHnD5kOr6hE5EkZSewV3oRRWuW5/view?usp=sharing";
+  const mandCheck = document.getElementById("updateMandatoryCheck");
+  if (mandCheck) mandCheck.checked = Boolean(upd.mandatory);
 }
 
 // Render In-App Alert Broadcast Form & Badge
@@ -561,57 +612,8 @@ function setupForms() {
     });
   }
 
-  // 1. Software Update Form
-  const updateForm = document.getElementById("publishUpdateForm");
-  if (updateForm) {
-    updateForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const base = getRegistryBaseUrl();
-      const pin = getAdminPin();
-      const version = document.getElementById("updateVersionInput").value.trim();
-      const notes = document.getElementById("updateNotesInput").value.trim();
-      const mandatory = document.getElementById("updateMandatoryCheck").checked;
-      const downloads = {
-        macos_arm64: document.getElementById("updateDlSilicon").value.trim(),
-        macos_x86_64: document.getElementById("updateDlIntel").value.trim(),
-        windows_x64: document.getElementById("updateDlWindows").value.trim(),
-      };
-
-      try {
-        const res = await fetch(`${base}/api/admin/updates/publish`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Pin": pin,
-          },
-          body: JSON.stringify({
-            admin_pin: pin,
-            version,
-            release_notes: notes,
-            mandatory,
-            downloads,
-          }),
-        });
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch {
-          throw new Error(`Server returned HTTP ${res.status}: ${text.slice(0, 120)}`);
-        }
-        if (data.ok) {
-          showAdminToast(`✓ Software update v${version} published successfully!`);
-          const curVer = document.getElementById("currentPublishedVersion");
-          if (curVer) curVer.textContent = `v${version}`;
-          loadAdminMetrics();
-        } else {
-          alert("Publish failed: " + (data.error || "Unknown error"));
-        }
-      } catch (err) {
-        alert("Error publishing update: " + err.message);
-      }
-    });
-  }
+  // 1. Software Update Handlers (Per-Device & Universal)
+  // Window methods are registered globally below.
 
   // 2. Generate Batch Keys
   const genBtn = document.getElementById("btnGenerateKeys");
@@ -802,3 +804,186 @@ function copyText(txt) {
   navigator.clipboard?.writeText(txt);
   showAdminToast(`Copied to clipboard: ${txt}`);
 }
+
+// ==========================================
+// Software Updates: Per-Device & Recall Handlers
+// ==========================================
+
+// Publish Device-Specific Update
+window.publishDeviceUpdate = async function(platform) {
+  const base = getRegistryBaseUrl();
+  const pin = getAdminPin();
+  let verElem, urlElem, notesElem, mandElem, platLabel;
+
+  if (platform === "macos_arm64") {
+    verElem = document.getElementById("verSiliconInput");
+    urlElem = document.getElementById("urlSiliconInput");
+    notesElem = document.getElementById("notesSiliconInput");
+    mandElem = document.getElementById("mandatorySiliconCheck");
+    platLabel = " macOS Apple Silicon";
+  } else if (platform === "macos_x86_64") {
+    verElem = document.getElementById("verIntelInput");
+    urlElem = document.getElementById("urlIntelInput");
+    notesElem = document.getElementById("notesIntelInput");
+    mandElem = document.getElementById("mandatoryIntelCheck");
+    platLabel = " macOS Intel";
+  } else if (platform === "windows_x64") {
+    verElem = document.getElementById("verWindowsInput");
+    urlElem = document.getElementById("urlWindowsInput");
+    notesElem = document.getElementById("notesWindowsInput");
+    mandElem = document.getElementById("mandatoryWindowsCheck");
+    platLabel = "⊞ Windows 10/11";
+  } else {
+    alert("Unknown platform");
+    return;
+  }
+
+  const version = (verElem?.value || "").trim();
+  const download_url = (urlElem?.value || "").trim();
+  const notes = (notesElem?.value || "").trim();
+  const mandatory = Boolean(mandElem?.checked);
+
+  if (!version) {
+    alert(`Please specify the release version for ${platLabel}.`);
+    verElem?.focus();
+    return;
+  }
+
+  try {
+    const res = await fetch(`${base}/api/admin/updates/publish`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Pin": pin,
+      },
+      body: JSON.stringify({
+        admin_pin: pin,
+        target: platform,
+        version,
+        download_url,
+        release_notes: notes,
+        mandatory,
+      }),
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`Server returned HTTP ${res.status}: ${text.slice(0, 120)}`);
+    }
+    if (data.ok) {
+      showAdminToast(`✓ Software update v${version} published for ${platLabel}!`);
+      loadAdminMetrics();
+    } else {
+      alert("Publish failed: " + (data.error || "Unknown error"));
+    }
+  } catch (err) {
+    alert("Error publishing update: " + err.message);
+  }
+};
+
+// Undo / Recall Update Notification
+window.recallUpdates = async function(platform = "all") {
+  const platLabels = {
+    macos_arm64: " Apple Silicon",
+    macos_x86_64: " macOS Intel",
+    windows_x64: "⊞ Windows 10/11",
+    all: "ALL devices",
+  };
+  const label = platLabels[platform] || platform;
+
+  const msg = platform === "all"
+    ? "Recall and silence ALL software update notifications across all devices?\n\nRunning and newly opened Lafzi client apps will stop prompting creators to update."
+    : `Recall and silence the software update notification for ${label}?\n\nClient apps on this device will stop displaying the update prompt.`;
+
+  if (!confirm(msg)) return;
+
+  const base = getRegistryBaseUrl();
+  const pin = getAdminPin();
+
+  try {
+    const res = await fetch(`${base}/api/admin/updates/recall`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Pin": pin,
+      },
+      body: JSON.stringify({
+        admin_pin: pin,
+        platform,
+      }),
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`Server returned HTTP ${res.status}: ${text.slice(0, 120)}`);
+    }
+    if (data.ok) {
+      showAdminToast(`✓ Update notification recalled and silenced for ${label}!`);
+      loadAdminMetrics();
+    } else {
+      alert("Recall failed: " + (data.error || "Unknown error"));
+    }
+  } catch (err) {
+    alert("Error recalling update: " + err.message);
+  }
+};
+
+// Publish Universal Update Across All 3 Devices
+window.publishUniversalUpdate = async function(e) {
+  if (e) e.preventDefault();
+  const base = getRegistryBaseUrl();
+  const pin = getAdminPin();
+  const version = document.getElementById("updateVersionInput")?.value.trim();
+  const notes = document.getElementById("updateNotesInput")?.value.trim();
+  const mandatory = Boolean(document.getElementById("updateMandatoryCheck")?.checked);
+
+  const urlSilicon = document.getElementById("urlSiliconInput")?.value.trim() || "";
+  const urlIntel = document.getElementById("urlIntelInput")?.value.trim() || "";
+  const urlWin = document.getElementById("urlWindowsInput")?.value.trim() || "";
+
+  if (!version) {
+    alert("Please enter a version number for the universal release.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${base}/api/admin/updates/publish`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Pin": pin,
+      },
+      body: JSON.stringify({
+        admin_pin: pin,
+        target: "all",
+        version,
+        release_notes: notes,
+        mandatory,
+        downloads: {
+          macos_arm64: urlSilicon,
+          macos_x86_64: urlIntel,
+          windows_x64: urlWin,
+        },
+      }),
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`Server returned HTTP ${res.status}: ${text.slice(0, 120)}`);
+    }
+    if (data.ok) {
+      showAdminToast(`✓ Universal software update v${version} published to all devices!`);
+      loadAdminMetrics();
+    } else {
+      alert("Publish failed: " + (data.error || "Unknown error"));
+    }
+  } catch (err) {
+    alert("Error publishing universal update: " + err.message);
+  }
+};
