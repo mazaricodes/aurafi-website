@@ -458,7 +458,7 @@ function renderUpdateManifest(upd) {
   const verWin = document.getElementById("verWindowsInput");
   if (verWin) verWin.value = win.version || upd.latest_version || "1.0.0";
   const urlWin = document.getElementById("urlWindowsInput");
-  if (urlWin) urlWin.value = win.download_url || upd.downloads?.windows_x64 || "https://drive.usercontent.google.com/download?id=1Vy9Z0cHnD5kOr6hE5EkZSewV3oRRWuW5&export=download&confirm=t";
+  if (urlWin) urlWin.value = win.download_url || upd.downloads?.windows_x64 || "https://drive.usercontent.google.com/download?id=16hCM1G7U4yZIjSJoAQjyBpl-S2ig-V1R&export=download&confirm=t";
   const notesWin = document.getElementById("notesWindowsInput");
   if (notesWin && !notesWin.value) notesWin.value = win.release_notes || "";
   const mandWin = document.getElementById("mandatoryWindowsCheck");
