@@ -444,7 +444,7 @@ function setupPlatformDetection() {
 
 const FREE_DOWNLOADS = {
   mac: "https://drive.usercontent.google.com/download?id=1evGxqidYQkLL1RLDD1jwjQ9qn2R_FMC3&export=download&confirm=t",
-  mac_intel: "https://drive.usercontent.google.com/download?id=1gsIsR6cu6u_GQQGq4pMpPv4SpjBBFwAx&export=download&confirm=t",
+  mac_intel: "https://drive.usercontent.google.com/download?id=1z1tFKA8N5T9PyXV46Uxtb9uJzw-HH4i0&export=download&confirm=t",
   windows: "https://drive.usercontent.google.com/download?id=16hCM1G7U4yZIjSJoAQjyBpl-S2ig-V1R&export=download&confirm=t",
 };
 

@@ -441,7 +441,7 @@ function renderUpdateManifest(upd) {
   const verIntel = document.getElementById("verIntelInput");
   if (verIntel) verIntel.value = intel.version || upd.latest_version || "1.0.0";
   const urlIntel = document.getElementById("urlIntelInput");
-  if (urlIntel) urlIntel.value = intel.download_url || upd.downloads?.macos_x86_64 || "https://drive.usercontent.google.com/download?id=1gsIsR6cu6u_GQQGq4pMpPv4SpjBBFwAx&export=download&confirm=t";
+  if (urlIntel) urlIntel.value = intel.download_url || upd.downloads?.macos_x86_64 || "https://drive.usercontent.google.com/download?id=1z1tFKA8N5T9PyXV46Uxtb9uJzw-HH4i0&export=download&confirm=t";
   const notesIntel = document.getElementById("notesIntelInput");
   if (notesIntel && !notesIntel.value) notesIntel.value = intel.release_notes || "";
   const mandIntel = document.getElementById("mandatoryIntelCheck");
