@@ -424,7 +424,7 @@ function renderUpdateManifest(upd) {
   const verSil = document.getElementById("verSiliconInput");
   if (verSil) verSil.value = sil.version || upd.latest_version || "1.0.0";
   const urlSil = document.getElementById("urlSiliconInput");
-  if (urlSil) urlSil.value = sil.download_url || upd.downloads?.macos_arm64 || "https://drive.usercontent.google.com/download?id=1ko7UVnAsgrSxxZR4xD3nE-RStxfcQZHo&export=download&confirm=t";
+  if (urlSil) urlSil.value = sil.download_url || upd.downloads?.macos_arm64 || "https://drive.usercontent.google.com/download?id=1evGxqidYQkLL1RLDD1jwjQ9qn2R_FMC3&export=download&confirm=t";
   const notesSil = document.getElementById("notesSiliconInput");
   if (notesSil && !notesSil.value) notesSil.value = sil.release_notes || "";
   const mandSil = document.getElementById("mandatorySiliconCheck");
